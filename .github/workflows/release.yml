@@ -1,0 +1,36 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run rebuild
+      - run: npm run dist
+      - shell: pwsh
+        run: |
+          $asset = Get-ChildItem -Path dist -Filter *.exe | Select-Object -First 1
+          if (-not $asset) { throw "Installer .exe not found in dist" }
+          $hash = (Get-FileHash $asset.FullName -Algorithm SHA256).Hash.ToLower()
+          $checksumPath = "$($asset.FullName).sha256"
+          "$hash  $($asset.Name)" | Out-File -FilePath $checksumPath -Encoding ascii
+          echo "ASSET_PATH=$($asset.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+          echo "CHECKSUM_PATH=$checksumPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ env.ASSET_PATH }}
+            ${{ env.CHECKSUM_PATH }}
