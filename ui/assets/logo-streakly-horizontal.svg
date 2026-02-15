@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="128" viewBox="0 0 480 128" role="img" aria-label="Streakly logo horizontal">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6f67ff"/>
+      <stop offset="100%" stop-color="#91b7ff"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(16,16)">
+    <rect width="96" height="96" rx="20" fill="url(#g)"/>
+    <g fill="#ffffff" transform="translate(0,0)">
+      <rect x="24" y="52" width="10" height="22" rx="5" opacity="0.95"/>
+      <rect x="40" y="42" width="10" height="32" rx="5" opacity="0.95"/>
+      <rect x="56" y="30" width="10" height="44" rx="5" opacity="0.95"/>
+      <path d="M29 62c8-6 15-9 22-15" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" opacity="0.95"/>
+      <path d="M52 45l6 6 12-14" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+  <g transform="translate(136,36)">
+    <text x="0" y="48" font-family="Inter, Segoe UI, Arial, Helvetica, sans-serif" font-weight="700" font-size="56" fill="#2d2b2f" letter-spacing="0.5">
+      Streakly
+    </text>
+  </g>
+</svg>

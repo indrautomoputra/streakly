@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' data:; connect-src 'self'">
   <title>Streakly</title>
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="assets/logo-s-note.svg">
+  <link rel="icon" type="image/svg+xml" sizes="64x64" href="assets/logo-s-note.svg">
   <link rel="icon" type="image/svg+xml" sizes="32x32" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0%25'%20stop-color='%234c8dff'/%3E%3Cstop%20offset='100%25'%20stop-color='%23ffb75e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='16'%20fill='url(%23g)'/%3E%3Cpath%20d='M18%2034c7-3%2012-8%2015-15l5-10a4%204%200%200%201%206%202c6%204%209%2012%207%2020l-3%2010-14%203-9-3c-4-2-7-4-10-7z'%20fill='%23ffffff'%20opacity='0.85'/%3E%3C/svg%3E">
   <link rel="icon" type="image/svg+xml" sizes="64x64" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0%25'%20stop-color='%234c8dff'/%3E%3Cstop%20offset='100%25'%20stop-color='%23ffb75e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='16'%20fill='url(%23g)'/%3E%3Cpath%20d='M18%2034c7-3%2012-8%2015-15l5-10a4%204%200%200%201%206%202c6%204%209%2012%207%2020l-3%2010-14%203-9-3c-4-2-7-4-10-7z'%20fill='%23ffffff'%20opacity='0.85'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
@@ -15,18 +17,6 @@
     <aside class="sidebar">
       <div class="sidebar-profile">
         <div class="profile-card">
-          <div class="profile-card-header">
-            <div class="profile-app-icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 14.5c2.5-1.2 4.4-3.1 5.6-5.6l2.6-5.4a1 1 0 0 1 1.4-.4c3.4 1.9 5.1 5.9 3.9 9.7l-1 3.2-4.7 1-3.2-1a10.5 10.5 0 0 1-4.9-3.5Z" fill="currentColor"/>
-                <path d="M7.5 17.5 4 20l2.5-3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="profile-app-text">
-              <div class="profile-app-title">Streakly</div>
-              <div class="profile-app-subtitle">Streakly Dashboard</div>
-            </div>
-          </div>
           <div class="profile-avatar-wrap">
             <img
               id="profileAvatar"
@@ -125,14 +115,10 @@
         <div class="topbar-left">
           <div class="app-brand">
             <div class="app-logo">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 14.5c2.5-1.2 4.4-3.1 5.6-5.6l2.6-5.4a1 1 0 0 1 1.4-.4c3.4 1.9 5.1 5.9 3.9 9.7l-1 3.2-4.7 1-3.2-1a10.5 10.5 0 0 1-4.9-3.5Z" fill="currentColor"/>
-                <path d="M7.5 17.5 4 20l2.5-3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-              </svg>
+              <img src="assets/logo-s-note.svg" alt="Logo Streakly">
             </div>
             <div class="app-meta">
-              <div class="app-name">Streakly</div>
-              <div class="app-tagline">Productivity + gamification untuk ritme harian</div>
+              <img class="app-wordmark" src="assets/logo-streakly-horizontal-mono.svg" alt="Streakly">
             </div>
           </div>
           <div class="topbar-right">
@@ -163,6 +149,7 @@
         <div id="motivationCard" class="motivation-card">
           <div id="greetingTitle" class="motivation-title">Mulai pelan, hasilnya besar!</div>
           <div id="greetingSubtitle" class="motivation-subtitle">Selesaikan satu task hari ini untuk buka level pertamamu.</div>
+          <div id="greetingSubtitleExtra" class="motivation-extra">Fokus pada satu langkah kecil sekarang, momentum akan mengangkat sisanya.</div>
           <div id="todayDate" class="topbar-date">Kamis, 12 Feb 2026</div>
         </div>
       </header>
@@ -267,12 +254,24 @@
             <div class="calendar-header">
               <div class="calendar-header-left">
                 <div class="card-title">Calendar</div>
-                <div class="card-subtitle">Jadwal task per bulan</div>
+                <div class="card-subtitle">Jadwal task dengan deadline</div>
               </div>
               <div class="calendar-header-right">
-                <button id="calendarPrev" class="btn-ghost btn-compact" aria-label="Bulan sebelumnya">‹</button>
-                <div id="calendarMonthLabel" class="calendar-month-label">Februari 2026</div>
-                <button id="calendarNext" class="btn-ghost btn-compact" aria-label="Bulan berikutnya">›</button>
+                <div class="calendar-controls">
+                  <div class="calendar-view-tabs">
+                    <button class="calendar-view-tab is-active" data-calendar-view="month">Bulan</button>
+                    <button class="calendar-view-tab" data-calendar-view="week">Minggu</button>
+                    <button class="calendar-view-tab" data-calendar-view="day">Hari</button>
+                  </div>
+                  <div class="calendar-actions">
+                    <button id="calendarQuickAddTrigger" class="btn-ghost btn-compact">Tambah Task</button>
+                  </div>
+                </div>
+                <div class="calendar-nav">
+                  <button id="calendarPrev" class="btn-ghost btn-compact" aria-label="Bulan sebelumnya">‹</button>
+                  <div id="calendarMonthLabel" class="calendar-month-label">Februari 2026</div>
+                  <button id="calendarNext" class="btn-ghost btn-compact" aria-label="Bulan berikutnya">›</button>
+                </div>
               </div>
             </div>
             <div class="calendar-weekdays">
@@ -285,6 +284,8 @@
               <div>Min</div>
             </div>
             <div id="calendarGrid" class="calendar-grid"></div>
+            <div id="calendarWeek" class="calendar-week is-hidden"></div>
+            <div id="calendarDay" class="calendar-day-view is-hidden"></div>
           </div>
         </div>
       </section>
@@ -493,7 +494,6 @@
             <div class="settings-tabs">
               <button class="settings-tab is-active" data-settings-tab="theme">Theme</button>
               <button class="settings-tab" data-settings-tab="profile">Profile</button>
-              <button class="settings-tab" data-settings-tab="category">Kategori</button>
             </div>
             <div class="settings-panel is-active" data-settings-panel="theme">
             <div class="settings-section">
@@ -653,27 +653,6 @@
                 </div>
               </div>
             </div>
-            <div class="settings-panel" data-settings-panel="category">
-              <div class="settings-section">
-                <div class="settings-title">Kategori Task</div>
-                <div class="settings-subtitle">Buat kategori dengan drag & drop dan template siap pakai</div>
-                <div id="categoryTutorial" class="category-tutorial">
-                  <div class="category-tutorial-title">Mulai cepat</div>
-                  <div class="category-tutorial-text">Seret kartu untuk mengurutkan, klik tambah untuk membuat kategori, dan pilih template kantor.</div>
-                  <button id="categoryTutorialClose" class="btn-ghost btn-compact">Saya mengerti</button>
-                </div>
-                <div class="category-templates">
-                  <button class="btn-ghost btn-compact" data-category-template="office" title="Tambah template kantor">Template Kantor</button>
-                  <button class="btn-ghost btn-compact" data-category-template="personal" title="Tambah template personal">Template Personal</button>
-                </div>
-                <div class="category-add">
-                  <input id="categoryNameInput" class="input" type="text" placeholder="Nama kategori baru" title="Nama kategori">
-                  <input id="categoryColorInput" class="input input-color" type="color" value="#6f67ff" title="Pilih warna kategori">
-                  <button id="categoryAddButton" class="btn-primary">Tambah</button>
-                </div>
-                <div id="categoryList" class="category-list"></div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -685,7 +664,6 @@
               <div class="card-subtitle">Desktop app produktivitas offline-first dengan gamifikasi XP & streak.</div>
               <div class="text-body">Streakly memadukan manajemen task, XP, streak, dan analytics 30 hari untuk ritme kerja yang stabil.</div>
             </div>
-            <div class="about-illustration"></div>
           </div>
           <div class="about-tabs">
             <button class="about-tab is-active" data-about-tab="overview">Overview</button>
@@ -903,6 +881,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../renderer/calendar-utils.js"></script>
   <script src="../renderer/renderer.js"></script>
 
 </body>

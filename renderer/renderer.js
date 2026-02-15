@@ -35,6 +35,8 @@ let cachedTasks = [];
 let cachedDailyStats = [];
 let cachedStats = {};
 let lastMotivationKey = '';
+let calendarViewMode = 'month';
+let calendarSelectedDate = '';
 const CATEGORY_STORAGE_KEY = 'streakly_categories';
 const CATEGORY_TUTORIAL_KEY = 'streakly_category_tutorial';
 const defaultAvatar =
@@ -715,13 +717,20 @@ function setupSettings() {
     if (!hash.startsWith('settings/')) return;
     const target = hash.split('/')[1];
     if (!target) return;
+    const availableTargets = Array.from(settingsTabs).map((tab) =>
+      tab.getAttribute('data-settings-tab')
+    );
+    const resolvedTarget = availableTargets.includes(target)
+      ? target
+      : settingsTabs[0]?.getAttribute('data-settings-tab');
+    if (!resolvedTarget) return;
     settingsTabs.forEach((tab) => {
-      tab.classList.toggle('is-active', tab.getAttribute('data-settings-tab') === target);
+      tab.classList.toggle('is-active', tab.getAttribute('data-settings-tab') === resolvedTarget);
     });
     settingsPanels.forEach((panel) => {
       panel.classList.toggle(
         'is-active',
-        panel.getAttribute('data-settings-panel') === target
+        panel.getAttribute('data-settings-panel') === resolvedTarget
       );
     });
   };
@@ -1239,6 +1248,7 @@ async function loadChart() {
   const data = await unwrap(window.api.get30Days(), []);
   const ctx = document.getElementById('chart');
   if (!ctx) return data;
+  if (typeof Chart === 'undefined') return data;
   if (chartInstance) {
     chartInstance.destroy();
   }
@@ -1499,84 +1509,225 @@ function buildTaskDateMap(tasks) {
   return map;
 }
 
-function renderMonthCalendar(tasks) {
+function getEventTypeClass(type) {
+  return type === 'task' ? 'calendar-event--task' : 'calendar-event--task';
+}
+
+function shiftSelectedDate(days) {
+  const base = calendarSelectedDate || getTodayString();
+  const date = new Date(base);
+  if (Number.isNaN(date.getTime())) return;
+  date.setDate(date.getDate() + days);
+  calendarSelectedDate = CalendarUtils.toIsoDate(date);
+}
+
+function formatEventTime(event) {
+  if (event.allDay) return 'Seharian';
+  const start = new Date(event.start);
+  const end = new Date(event.end || event.start);
+  if (Number.isNaN(start.getTime())) return 'Waktu tidak valid';
+  const startText = start.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const endText = end.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  return startText === endText ? startText : `${startText}–${endText}`;
+}
+
+function buildCalendarTooltip(event) {
+  const lines = [];
+  lines.push(event.title || '(Tanpa judul)');
+  lines.push(formatEventTime(event));
+  if (event.sourceLabel) lines.push(`Sumber: ${event.sourceLabel}`);
+  if (event.location) lines.push(`Lokasi: ${event.location}`);
+  return lines.join('\n');
+}
+
+function buildCalendarEventHtml(event) {
+  const typeClass = event.pending ? 'calendar-event--pending' : getEventTypeClass(event.type);
+  const tooltip = buildCalendarTooltip(event);
+  return `
+    <div
+      class="calendar-event ${typeClass}"
+      data-tooltip="${escapeHtml(tooltip)}"
+      data-event-id="${escapeHtml(event.id || '')}"
+      data-event-source="${escapeHtml(event.source || '')}"
+      data-event-calendar="${escapeHtml(event.calendarId || '')}"
+    >
+      <div class="calendar-event-title">${escapeHtml(event.title)}</div>
+    </div>
+  `;
+}
+
+function normalizeTaskEvents(tasks) {
+  return (tasks || [])
+    .filter((task) => task.deadline)
+    .map((task) => ({
+      id: `task-${task.id}`,
+      title: task.title,
+      start: task.deadline,
+      end: task.deadline,
+      allDay: true,
+      type: 'task',
+      source: 'task',
+      sourceLabel: 'Task'
+    }));
+}
+
+function buildUnifiedCalendarEvents(tasks) {
+  return normalizeTaskEvents(tasks);
+}
+
+function renderMonthCalendar(events) {
   const grid = document.getElementById('calendarGrid');
   const label = document.getElementById('calendarMonthLabel');
   if (!grid || !label) return;
   const viewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth(), 1);
-  const year = viewDate.getFullYear();
-  const month = viewDate.getMonth();
   label.textContent = viewDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-  const firstDay = new Date(year, month, 1);
-  const startOffset = (firstDay.getDay() + 6) % 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const daysInPrev = new Date(year, month, 0).getDate();
-  const taskMap = buildTaskDateMap(tasks);
   const today = getTodayString();
-
-  const cells = [];
-  for (let i = 0; i < 42; i += 1) {
-    const dayNumber = i - startOffset + 1;
-    let cellDate = new Date(year, month, dayNumber);
-    let isOutside = false;
-    if (dayNumber <= 0) {
-      cellDate = new Date(year, month - 1, daysInPrev + dayNumber);
-      isOutside = true;
-    } else if (dayNumber > daysInMonth) {
-      cellDate = new Date(year, month + 1, dayNumber - daysInMonth);
-      isOutside = true;
-    }
-    const dateKey = cellDate.toISOString().split('T')[0];
-    const dayTasks = taskMap.get(dateKey) || [];
-    const events = dayTasks.slice(0, 3);
-    const moreCount = dayTasks.length - events.length;
-    const eventHtml = events
-      .map((task) => {
-        const color = getCategoryColor(task.category || '');
-        return `
-          <div class="calendar-event" style="background:${color}">
-            <div class="calendar-event-title">${escapeHtml(task.title)}</div>
+  const cells = CalendarUtils.buildMonthCells(viewDate, events);
+  grid.innerHTML = cells
+    .map((cell) => {
+      const dayEvents = cell.events || [];
+      const visible = dayEvents.slice(0, 3);
+      const moreCount = dayEvents.length - visible.length;
+      const eventHtml = visible.map(buildCalendarEventHtml).join('');
+      const moreHtml = moreCount > 0 ? `<div class="calendar-event-more">+${moreCount} lagi</div>` : '';
+      return `
+        <div class="calendar-day ${cell.isOutside ? 'is-outside' : ''} ${cell.date === today ? 'is-today' : ''}" data-date="${cell.date}">
+          <div class="calendar-day-number">${cell.dayNumber}</div>
+          <div class="calendar-events">
+            ${eventHtml}
+            ${moreHtml}
           </div>
-        `;
-      })
-      .join('');
-    const moreHtml = moreCount > 0 ? `<div class="calendar-event-more">+${moreCount} lagi</div>` : '';
-    cells.push(`
-      <div class="calendar-day ${isOutside ? 'is-outside' : ''} ${dateKey === today ? 'is-today' : ''}" data-date="${dateKey}">
-        <div class="calendar-day-number">${cellDate.getDate()}</div>
-        <div class="calendar-events">
-          ${eventHtml}
-          ${moreHtml}
         </div>
-      </div>
-    `);
+      `;
+    })
+    .join('');
+}
+
+function renderWeekCalendar(events) {
+  const container = document.getElementById('calendarWeek');
+  if (!container) return;
+  const baseDate = calendarSelectedDate || getTodayString();
+  const model = CalendarUtils.buildWeekModel(baseDate, events);
+  container.innerHTML = model
+    .map((day) => {
+      const list = day.events.length
+        ? day.events.map(buildCalendarEventHtml).join('')
+        : '<div class="calendar-event-more">Tidak ada event</div>';
+      return `
+        <div class="calendar-week-day" data-date="${day.date}">
+          <div class="calendar-week-label">${day.label}</div>
+          <div class="calendar-event-list">${list}</div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function renderDayCalendar(events) {
+  const container = document.getElementById('calendarDay');
+  if (!container) return;
+  const baseDate = calendarSelectedDate || getTodayString();
+  const model = CalendarUtils.buildDayModel(baseDate, events);
+  const list = model.events.length
+    ? model.events.map(buildCalendarEventHtml).join('')
+    : '<div class="calendar-event-more">Tidak ada event</div>';
+  container.innerHTML = `
+    <div class="calendar-day-label">${model.label}</div>
+    <div class="calendar-event-list">${list}</div>
+  `;
+}
+
+function renderCalendarView(events) {
+  const grid = document.getElementById('calendarGrid');
+  const week = document.getElementById('calendarWeek');
+  const day = document.getElementById('calendarDay');
+  const weekdays = document.querySelector('.calendar-weekdays');
+  if (calendarViewMode === 'month') {
+    grid?.classList.remove('is-hidden');
+    week?.classList.add('is-hidden');
+    day?.classList.add('is-hidden');
+    weekdays?.classList.remove('is-hidden');
+    renderMonthCalendar(events);
+  } else if (calendarViewMode === 'week') {
+    grid?.classList.add('is-hidden');
+    week?.classList.remove('is-hidden');
+    day?.classList.add('is-hidden');
+    weekdays?.classList.add('is-hidden');
+    renderWeekCalendar(events);
+  } else {
+    grid?.classList.add('is-hidden');
+    week?.classList.add('is-hidden');
+    day?.classList.remove('is-hidden');
+    weekdays?.classList.add('is-hidden');
+    renderDayCalendar(events);
   }
-  grid.innerHTML = cells.join('');
 }
 
 function setupCalendarControls() {
   const prevButton = document.getElementById('calendarPrev');
   const nextButton = document.getElementById('calendarNext');
   const grid = document.getElementById('calendarGrid');
+  const week = document.getElementById('calendarWeek');
+  const day = document.getElementById('calendarDay');
+  const viewTabs = document.querySelectorAll('.calendar-view-tab');
+  const quickAddButton = document.getElementById('calendarQuickAddTrigger');
   if (prevButton) {
     prevButton.addEventListener('click', () => {
-      calendarViewDate.setMonth(calendarViewDate.getMonth() - 1);
-      renderMonthCalendar(cachedTasks);
+      if (calendarViewMode === 'month') {
+        calendarViewDate.setMonth(calendarViewDate.getMonth() - 1);
+      } else if (calendarViewMode === 'week') {
+        shiftSelectedDate(-7);
+      } else {
+        shiftSelectedDate(-1);
+      }
+      renderCalendarView(buildUnifiedCalendarEvents(cachedTasks));
     });
   }
   if (nextButton) {
     nextButton.addEventListener('click', () => {
-      calendarViewDate.setMonth(calendarViewDate.getMonth() + 1);
-      renderMonthCalendar(cachedTasks);
+      if (calendarViewMode === 'month') {
+        calendarViewDate.setMonth(calendarViewDate.getMonth() + 1);
+      } else if (calendarViewMode === 'week') {
+        shiftSelectedDate(7);
+      } else {
+        shiftSelectedDate(1);
+      }
+      renderCalendarView(buildUnifiedCalendarEvents(cachedTasks));
+    });
+  }
+  if (quickAddButton) {
+    quickAddButton.addEventListener('click', () => {
+      openCalendarQuickAdd(calendarSelectedDate || getTodayString());
     });
   }
   if (grid) {
     grid.addEventListener('click', (event) => {
+      const eventCard = event.target.closest('.calendar-event');
+      if (eventCard) {
+        handleCalendarEventClick(eventCard);
+        return;
+      }
       const cell = event.target.closest('.calendar-day');
       if (!cell) return;
       const date = cell.getAttribute('data-date');
-      if (date) openCalendarQuickAdd(date);
+      if (date) {
+        calendarSelectedDate = date;
+        if (calendarViewMode === 'month') {
+          openCalendarQuickAdd(date);
+        }
+        renderCalendarView(buildUnifiedCalendarEvents(cachedTasks));
+      }
+    });
+  }
+  if (viewTabs.length) {
+    viewTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-calendar-view');
+        if (!target) return;
+        calendarViewMode = target;
+        viewTabs.forEach((item) => item.classList.toggle('is-active', item === tab));
+        renderCalendarView(buildUnifiedCalendarEvents(cachedTasks));
+      });
     });
   }
 }
@@ -1699,7 +1850,14 @@ function renderCalendarTasks(tasks) {
 }
 
 async function refreshAll() {
-  const [tasks, stats, dailyStats] = await Promise.all([loadTasks(), loadStats(), loadChart()]);
+  const [tasksResult, statsResult, dailyStatsResult] = await Promise.allSettled([
+    loadTasks(),
+    loadStats(),
+    loadChart()
+  ]);
+  const tasks = tasksResult.status === 'fulfilled' ? tasksResult.value : [];
+  const stats = statsResult.status === 'fulfilled' ? statsResult.value : {};
+  const dailyStats = dailyStatsResult.status === 'fulfilled' ? dailyStatsResult.value : [];
   cachedTasks = tasks || [];
   cachedStats = stats || {};
   cachedDailyStats = dailyStats || [];
@@ -1707,7 +1865,7 @@ async function refreshAll() {
   renderAnalyticsSummary(tasks || [], stats || {}, dailyStats || []);
   updateCalendar();
   renderCalendarTasks(tasks || []);
-  renderMonthCalendar(cachedTasks);
+  renderCalendarView(buildUnifiedCalendarEvents(cachedTasks));
   updateGreeting();
 }
 
@@ -2043,9 +2201,38 @@ function setupAboutTabs() {
   });
 }
 
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    await navigator.serviceWorker.register('sw.js');
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function updateOnlineStatusBadge(isOnline) {
+  const badge = document.getElementById('onlineStatusBadge');
+  if (!badge) return;
+  badge.textContent = isOnline ? 'Online' : 'Offline';
+  badge.classList.toggle('is-offline', !isOnline);
+}
+
+function setupOnlineStatus() {
+  const badge = document.getElementById('onlineStatusBadge');
+  if (!badge) return;
+  updateOnlineStatusBadge(navigator.onLine);
+  window.addEventListener('online', () => {
+    updateOnlineStatusBadge(true);
+  });
+  window.addEventListener('offline', () => {
+    updateOnlineStatusBadge(false);
+  });
+}
+
 window.onload = () => {
   calendarViewDate = new Date();
   calendarViewDate.setDate(1);
+  calendarSelectedDate = getTodayString();
   setupNavigation();
   setupProfile();
   setupSettings();
@@ -2053,8 +2240,10 @@ window.onload = () => {
   setupTopbar();
   setupCalendarControls();
   setupCalendarQuickAdd();
+  setupOnlineStatus();
   setupReminderCalendar();
   setupTaskForm();
   setupAboutTabs();
   refreshAll();
+  registerServiceWorker();
 };

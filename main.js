@@ -283,6 +283,7 @@ function createWindow() {
     width: windowWidth,
     height: windowHeight,
     frame: true,
+    icon: path.join(__dirname, 'ui', 'assets', 'logo-s-note.svg'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -290,7 +291,7 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile('ui/index.html');
+  mainWindow.loadFile(path.join(__dirname, 'ui', 'index.html'));
   mainWindow.setTitle('Streakly');
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();

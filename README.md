@@ -1,71 +1,37 @@
 # Streakly
 
-Desktop app berbasis Electron + SQLite untuk mengubah produktivitas harian menjadi pengalaman gamifikasi.
+![Build](https://img.shields.io/badge/build-unknown-lightgrey)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
 
-## Ringkasan
-Streakly memadukan manajemen task, XP, streak, dan analytics 30 hari ke dalam satu aplikasi desktop offline-first. Aplikasi dirancang dengan pemisahan layer (main, preload, services, repositories/queries, renderer) dan IPC wrapper yang konsisten.
+Streakly adalah aplikasi desktop produktivitas berbasis Electron + SQLite yang mengubah manajemen task harian menjadi pengalaman gamifikasi terukur. Fokus utamanya adalah menjaga ritme eksekusi melalui XP, streak, dan analytics 30 hari dalam mode offline-first.
+
+## Tujuan Utama
+- Mengelola task harian dengan detail, deadline, dan status selesai
+- Memotivasi konsistensi melalui XP, level, dan streak
+- Menyediakan insight produktivitas berbasis data 30 hari terakhir
+
+## Teknologi
+- Electron 28 (desktop app)
+- Node.js + IPC (main/preload/renderer)
+- SQLite3 (penyimpanan lokal)
+- Chart.js (visualisasi tren)
 
 ## Fitur Utama
-- Manajemen task dengan detail, deadline, status selesai
+- Task management lengkap (judul, detail, deadline, side, status)
 - XP + streak gamification yang konsisten per hari
 - Analytics 30 hari terakhir
-- Tema UI yang bisa diubah via template palette atau custom theme
+- Tema UI yang dapat dikustomisasi
 - Export PDF laporan produktivitas
 - Backup/restore database lokal
 
-## Arsitektur (High-Level)
-- Main process: inisialisasi aplikasi, IPC handler, export PDF, backup/restore
-- Preload: API bridge terkurasi dengan wrapper `{ ok, data, error }`
-- Services: logika domain (XP/streak, task lifecycle, analytics, profile)
-- Repositories/queries: akses SQLite terpusat + transaksi
-- Renderer: UI, state, dan event handling
-
-## Data Model (SQLite)
-- `tasks`: judul, detail, deadline, side, status done, created_at
-- `stats`: XP, level, streak, last_activity
-- `daily_stats`: agregasi XP/task per tanggal
-- `profile`: nama dan avatar
-- `settings`: tema UI + aturan XP
-
-## Alur XP & Streak
-1. Task ditandai selesai.
-2. `xpService.updateXP()` berjalan di dalam transaksi.
-3. XP bertambah, streak dihitung ulang, daily_stats di-upsert.
-
-## Engineering Challenges
-- Menjaga konsistensi XP dan streak agar tidak ganda saat task selesai.
-- Menyimpan statistik harian secara efisien tanpa query berat.
-- Menyusun laporan PDF terstruktur tanpa DOM screenshot.
-- Menyediakan tema UI yang fleksibel tanpa library tema eksternal.
-
-## Design Decisions
-- SQLite lokal agar aplikasi offline-first dan mudah dibackup.
-- IPC wrapper `{ ok, data, error }` untuk standar error handling.
-- `daily_stats` sebagai tabel agregasi agar analytics 30 hari cepat.
-- Theme via CSS variables untuk fleksibilitas tanpa CSS-in-JS.
-
-## Trade-offs
-- Renderer masih monolitik; cepat untuk iterasi UI, kurang modular.
-- Tidak ada framework state management; logika langsung di DOM untuk kesederhanaan.
-- Chart.js via CDN mempercepat setup, tetapi menambah ketergantungan runtime.
-
-## Future Improvements
-- Pagination + virtualized list untuk task besar.
-- Indexing di SQLite untuk deadline/created_at/done.
-- Test coverage untuk XP/streak dan repository layer.
-- CSP + asset bundling untuk mengurangi surface area keamanan.
-- Modularisasi renderer (components/store).
-
-## What This Project Demonstrates
-- Arsitektur desktop app dengan Electron + SQLite
-- Desain IPC aman dengan contextIsolation
-- Transactional update untuk gamification logic
-- Migrasi schema incremental tanpa framework eksternal
-- Pembuatan laporan PDF terstruktur
-
-## Menjalankan Proyek
+## Instalasi
 ```bash
 npm install
+```
+
+## Menjalankan Aplikasi
+```bash
 npm run start
 ```
 
@@ -73,3 +39,37 @@ npm run start
 ```bash
 npm run build
 ```
+
+## Testing
+```bash
+npm test
+```
+
+## Contoh Penggunaan API Renderer
+```javascript
+const payload = {
+  title: 'Rancang roadmap Q2',
+  deadline: '2026-03-01',
+  side: 'Strategy',
+  detail: 'Prioritaskan inisiatif high-impact',
+  status: 'open',
+  category: 'Planning'
+};
+
+window.api.addTask(payload).then((result) => {
+  if (!result.ok) {
+    console.error(result.error?.message);
+  }
+});
+```
+
+## Dokumentasi Tambahan
+- [Dokumentasi Arsitektur & Workflow](docs/README.md)
+- [Halaman Repository](https://github.com/indrautomoputra/streakly-v1)
+
+## Kontribusi
+Kami menyambut kontribusi yang terstruktur dan terukur.
+- Fork repository dan buat branch fitur: `feature/nama-fitur`
+- Pastikan `npm test` lulus sebelum mengirim PR
+- Sertakan ringkasan perubahan dan alasan pada PR description
+- Laporkan bug atau ide melalui Issues: https://github.com/indrautomoputra/streakly-v1/issues
