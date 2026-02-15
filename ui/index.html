@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' data:; connect-src 'self'">
+  <title>Streakly</title>
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="assets/logo-s-note.svg">
+  <link rel="icon" type="image/svg+xml" sizes="64x64" href="assets/logo-s-note.svg">
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0%25'%20stop-color='%234c8dff'/%3E%3Cstop%20offset='100%25'%20stop-color='%23ffb75e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='16'%20fill='url(%23g)'/%3E%3Cpath%20d='M18%2034c7-3%2012-8%2015-15l5-10a4%204%200%200%201%206%202c6%204%209%2012%207%2020l-3%2010-14%203-9-3c-4-2-7-4-10-7z'%20fill='%23ffffff'%20opacity='0.85'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" sizes="64x64" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0%25'%20stop-color='%234c8dff'/%3E%3Cstop%20offset='100%25'%20stop-color='%23ffb75e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='16'%20fill='url(%23g)'/%3E%3Cpath%20d='M18%2034c7-3%2012-8%2015-15l5-10a4%204%200%200%201%206%202c6%204%209%2012%207%2020l-3%2010-14%203-9-3c-4-2-7-4-10-7z'%20fill='%23ffffff'%20opacity='0.85'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-frame">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-profile">
+        <div class="profile-card">
+          <div class="profile-avatar-wrap">
+            <img
+              id="profileAvatar"
+              class="profile-avatar profile-avatar-lg"
+              src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%237367f0'/><stop offset='100%' stop-color='%239f87ff'/></linearGradient></defs><rect width='80' height='80' rx='40' fill='url(%23g)'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Segoe UI, Arial' font-size='30' fill='white'>R</text></svg>"
+              alt="Foto profil Raka"
+            />
+            <span class="profile-badge">21h</span>
+          </div>
+          <div class="profile-meta">
+            <div id="profileName" class="profile-name">Raka Pratama</div>
+            <div id="profileEmail" class="profile-role">raka@streakly.app</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-section="dashboard">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-10.5Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-item" data-section="calendar">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 3v3M17 3v3M4 8h16M6 6h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Calendar</span>
+        </button>
+        <button class="nav-item" data-section="analytics">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 19V5m5 14V9m5 10v-6m5 6V7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Analytics</span>
+        </button>
+        <button class="nav-item" data-section="tasks">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 6h10M4 12h10M4 18h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+              <path d="m16 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Task List</span>
+        </button>
+        <button class="nav-item" data-section="tracking">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="13" r="7" stroke="currentColor" stroke-width="1.6" fill="none"/>
+              <path d="M12 13V9m0-6v2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Tracking</span>
+        </button>
+        <button class="nav-item" data-section="settings">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" stroke="currentColor" stroke-width="1.6" fill="none"/>
+              <path d="M4 12h2m12 0h2M12 4v2m0 12v2M6.5 6.5l1.4 1.4m8.2 8.2 1.4 1.4M17.5 6.5l-1.4 1.4M7.9 15.1l-1.4 1.4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Setting</span>
+        </button>
+        <button class="nav-item" data-section="about">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm0 4a1 1 0 0 1 1 1v4.4l3 1.8a1 1 0 1 1-1 1.7l-3.5-2.1A1 1 0 0 1 11 12V8a1 1 0 0 1 1-1Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="nav-label">About</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="level-card">
+          <div class="level-label">Level</div>
+          <div id="levelBadge" class="level-value">0</div>
+          <div class="xp-bar">
+            <div id="xpProgress" class="xp-bar-fill"></div>
+          </div>
+          <div class="xp-meta">
+            <span id="xpText">XP 0/100</span>
+            <span id="streakText">🔥 0</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar app-header">
+        <div class="topbar-left">
+            <div class="app-brand">
+              <div class="app-meta">
+                <img class="app-wordmark" src="assets/logo streakly-04-05.svg" alt="Streakly">
+              </div>
+            </div>
+          <div class="topbar-right">
+            <div class="topbar-section topbar-search">
+              <div class="search-compact">
+                <button id="searchToggle" class="icon-button" aria-label="Search" data-tooltip="Search">
+                  <span class="icon-search">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+                      <path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                </button>
+                <div id="searchDropdown" class="search-dropdown is-hidden">
+                  <div class="search-box">
+                    <span class="search-icon">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+                        <path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <input id="searchInput" class="search-input" type="text" placeholder="Cari task atau side">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="topbar-section topbar-theme">
+              <label class="theme-switch" aria-label="Toggle theme">
+                <input id="themeModeToggle" type="checkbox">
+                <span class="theme-switch-track">
+                  <span class="theme-switch-icon theme-switch-icon--light">☀</span>
+                  <span class="theme-switch-icon theme-switch-icon--dark">🌙</span>
+                  <span class="theme-switch-thumb"></span>
+                </span>
+              </label>
+            </div>
+            <div class="topbar-section topbar-cta">
+              <button class="btn-primary btn-compact" data-section-target="tasks">Tambah Task</button>
+            </div>
+          </div>
+        </div>
+        <div id="motivationCard" class="motivation-card">
+          <div id="greetingTitle" class="motivation-title">Mulai pelan, hasilnya besar!</div>
+          <div id="greetingSubtitle" class="motivation-subtitle">Selesaikan satu task hari ini untuk buka level pertamamu.</div>
+          <div id="greetingSubtitleExtra" class="motivation-extra">Fokus pada satu langkah kecil sekarang, momentum akan mengangkat sisanya.</div>
+          <div id="todayDate" class="topbar-date">Kamis, 12 Feb 2026</div>
+        </div>
+      </header>
+
+      <section class="section active" data-section="dashboard">
+        <div class="content-grid">
+          <div class="card card-span-2 dashboard-shell">
+            <div class="dashboard-layout">
+              <div class="dashboard-section">
+                <div class="section-title">Focus Areas</div>
+                <div class="focus-area-layout">
+                  <div class="project-cards" id="projectCards">
+              <div class="project-card project-purple">
+                <div class="project-title">Deep Work</div>
+                <div class="project-meta">10 task · 96%</div>
+                <div class="project-progress"><span style="width:96%"></span></div>
+              </div>
+              <div class="project-card project-teal">
+                <div class="project-title">Content Sprint</div>
+                <div class="project-meta">12 task · 48%</div>
+                <div class="project-progress"><span style="width:48%"></span></div>
+              </div>
+              <div class="project-card project-coral">
+                <div class="project-title">Product polish</div>
+                <div class="project-meta">22 task · 76%</div>
+                <div class="project-progress"><span style="width:76%"></span></div>
+              </div>
+                  </div>
+                  <div class="task-legend-area focus-legend">
+                    <div class="task-legend-title">Keterangan warna task</div>
+                    <div class="task-legend-subtitle">Gunakan kategori untuk membedakan konteks.</div>
+                    <div class="category-legend" id="categoryLegend"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dashboard-columns">
+            <div class="card tasks-today">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Tasks for today</div>
+                  <div class="card-subtitle">Prioritas yang siap kamu eksekusi</div>
+                </div>
+                <button class="btn-ghost btn-compact" data-section-target="tasks">Lihat semua</button>
+              </div>
+              <div class="tasks-today-list" id="dashboardTasks">
+                <div class="task-mini">
+                  <div class="task-mini-info">
+                    <div class="task-mini-title">Buat rangkuman daily</div>
+                    <div class="task-mini-meta">Konten · Hari ini</div>
+                  </div>
+                  <div class="task-mini-status"> </div>
+                </div>
+                <div class="task-mini">
+                  <div class="task-mini-info">
+                    <div class="task-mini-title">Revisi landing page</div>
+                    <div class="task-mini-meta">Produk · Berjalan</div>
+                  </div>
+                  <div class="task-mini-status"> </div>
+                </div>
+                <div class="task-mini">
+                  <div class="task-mini-info">
+                    <div class="task-mini-title">Susun agenda meeting</div>
+                    <div class="task-mini-meta">Tim · Siang</div>
+                  </div>
+                  <div class="task-mini-status"> </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card stats-mini">
+              <div class="card-title">Statistics</div>
+              <div class="stats-mini-grid">
+                <div class="mini-stat">
+                  <div class="mini-label">XP minggu ini</div>
+                  <div id="weekXp" class="mini-value">0</div>
+                </div>
+                <div class="mini-stat">
+                  <div class="mini-label">Task selesai 30 hari</div>
+                  <div id="tasks30" class="mini-value">0</div>
+                </div>
+                <div class="mini-stat">
+                  <div class="mini-label">Hari aktif</div>
+                  <div id="activeDays" class="mini-value">0</div>
+                </div>
+                <div class="mini-stat">
+                  <div class="mini-label">Total XP</div>
+                  <div id="stats" class="mini-value">XP 0</div>
+                </div>
+                <div class="mini-stat">
+                  <div class="mini-label">Level</div>
+                  <div id="levelCard" class="mini-value">0</div>
+                </div>
+                <div class="mini-stat">
+                  <div class="mini-label">Streak</div>
+                  <div id="streakCard" class="mini-value">🔥 0</div>
+                </div>
+              </div>
+              <div class="mini-insight">
+                <div class="mini-insight-title">Insight cepat</div>
+                <div id="insightText" class="mini-insight-text">Pertahankan ritme dengan satu task utama.</div>
+              </div>
+            </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-section="calendar">
+        <div class="content-grid">
+          <div class="card card-span-2 calendar-shell">
+            <div class="calendar-header">
+              <div class="calendar-header-left">
+                <div class="card-title">Calendar</div>
+                <div class="card-subtitle">Jadwal task dengan deadline</div>
+              </div>
+              <div class="calendar-header-right">
+                <div class="calendar-controls">
+                  <div class="calendar-view-tabs">
+                    <button class="calendar-view-tab is-active" data-calendar-view="month">Bulan</button>
+                    <button class="calendar-view-tab" data-calendar-view="week">Minggu</button>
+                    <button class="calendar-view-tab" data-calendar-view="day">Hari</button>
+                  </div>
+                  <div class="calendar-actions">
+                    <button id="calendarQuickAddTrigger" class="btn-ghost btn-compact">Tambah Task</button>
+                  </div>
+                </div>
+                <div class="calendar-nav">
+                  <button id="calendarPrev" class="btn-ghost btn-compact" aria-label="Bulan sebelumnya">‹</button>
+                  <div id="calendarMonthLabel" class="calendar-month-label">Februari 2026</div>
+                  <button id="calendarNext" class="btn-ghost btn-compact" aria-label="Bulan berikutnya">›</button>
+                </div>
+              </div>
+            </div>
+            <div class="calendar-weekdays">
+              <div>Sen</div>
+              <div>Sel</div>
+              <div>Rab</div>
+              <div>Kam</div>
+              <div>Jum</div>
+              <div>Sab</div>
+              <div>Min</div>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+            <div id="calendarWeek" class="calendar-week is-hidden"></div>
+            <div id="calendarDay" class="calendar-day-view is-hidden"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-section="tasks">
+        <div class="content-grid">
+          <div class="card card-span-2 task-card">
+            <div class="task-header">
+              <div class="card-title">Tasks</div>
+              <div id="taskRoleSubtitle" class="card-subtitle">Tambahkan dan kelola task hari ini</div>
+            </div>
+            <div class="task-layout">
+              <div class="task-form-area">
+                <div id="taskError" class="task-error input-error is-hidden"></div>
+                <div id="taskSuccess" class="task-success is-hidden"></div>
+                <div class="task-form-section">
+                  <div class="task-section-title">Informasi Utama</div>
+                  <div class="task-form-grid">
+                    <div class="task-form-row full">
+                      <label class="settings-label" for="title">Judul task</label>
+                      <input id="title" type="text" class="input" placeholder="Minimal 5 karakter" required maxlength="200">
+                      <div class="field-error" data-error-for="title"></div>
+                    </div>
+                    <div class="task-form-row full">
+                      <label class="settings-label">Deskripsi task</label>
+                      <div class="rich-toolbar">
+                        <button type="button" class="btn-ghost btn-compact" data-rich-action="bold">Bold</button>
+                        <button type="button" class="btn-ghost btn-compact" data-rich-action="italic">Italic</button>
+                        <button type="button" class="btn-ghost btn-compact" data-rich-action="unordered">Bullet</button>
+                      </div>
+                      <div id="detailRich" class="rich-editor" contenteditable="true" role="textbox" aria-label="Deskripsi task" data-placeholder="Jelaskan detail task secara singkat"></div>
+                      <div class="field-hint">Gunakan format dasar untuk menekankan poin penting.</div>
+                    </div>
+                    <div class="task-form-row">
+                      <label class="settings-label" for="deadline">Tanggal jatuh tempo</label>
+                      <input id="deadline" type="date" class="input" required>
+                      <div class="field-error" data-error-for="deadline"></div>
+                    </div>
+                    <div class="task-form-row">
+                      <label class="settings-label" for="priority">Tingkat prioritas</label>
+                      <select id="priority" class="input" required>
+                        <option value="">Pilih prioritas</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Urgent">Urgent</option>
+                      </select>
+                      <div class="field-error" data-error-for="priority"></div>
+                    </div>
+                    <div class="task-form-row">
+                      <label class="settings-label" for="status">Status task</label>
+                      <select id="status" class="input" required>
+                        <option value="">Pilih status</option>
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="In Review">In Review</option>
+                        <option value="Completed">Completed</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                      <div class="field-error" data-error-for="status"></div>
+                    </div>
+                    <div class="task-form-row full">
+                      <label class="settings-label" for="assignees">Assignee</label>
+                      <select id="assignees" class="input" multiple></select>
+                      <div class="field-error" data-error-for="assignees"></div>
+                    </div>
+                    <div class="task-form-row">
+                      <label class="settings-label" for="category">Kategori warna</label>
+                      <select id="category" class="input"></select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="task-form-actions">
+                  <button id="addButton" class="btn-primary">Tambah</button>
+                  <button id="cancelEdit" class="btn-ghost is-hidden">Batal</button>
+                </div>
+              </div>
+            </div>
+            <div class="task-history">
+              <div class="task-history-title">History task</div>
+              <div id="tasks" class="task-list"></div>
+              <div class="task-footer">
+                <button id="tasksLoadMore" class="btn-ghost">Muat lebih banyak</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-section="analytics">
+        <div class="analytics-grid">
+          <div class="card analytics-summary">
+            <div class="card-title">Ringkasan</div>
+            <div class="card-subtitle">30 hari terakhir</div>
+            <div class="metrics-grid">
+              <div class="metric-tile">
+                <div class="metric-label">Total XP</div>
+                <div id="analyticsTotalXp" class="metric-value">XP 0</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Streak</div>
+                <div id="analyticsStreak" class="metric-value">🔥 0</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Rata-rata XP</div>
+                <div id="analyticsAvgXp" class="metric-value">XP 0</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Hari aktif</div>
+                <div id="analyticsActiveDays" class="metric-value">0 hari</div>
+              </div>
+            </div>
+          </div>
+          <div class="card analytics-chart">
+            <div class="card-title">Tren XP</div>
+            <div class="card-subtitle">Perubahan harian</div>
+            <canvas id="chart" height="220"></canvas>
+          </div>
+          <div class="card analytics-breakdown">
+            <div class="card-title">Insight 30 hari</div>
+            <div class="analytics-list">
+              <div class="analytics-item">
+                <span class="analytics-label">Task selesai</span>
+                <span id="analyticsTasks30" class="analytics-value">0</span>
+              </div>
+              <div class="analytics-item">
+                <span class="analytics-label">XP 7 hari terakhir</span>
+                <span id="analyticsXp7" class="analytics-value">0</span>
+              </div>
+              <div class="analytics-item">
+                <span class="analytics-label">Hari terbaik</span>
+                <span id="analyticsBestDay" class="analytics-value">-</span>
+              </div>
+              <div class="analytics-item">
+                <span class="analytics-label">Konsistensi</span>
+                <span id="analyticsConsistency" class="analytics-value">0%</span>
+              </div>
+              <div class="analytics-item">
+                <span class="analytics-label">Trend mingguan</span>
+                <span id="analyticsTrend" class="analytics-value">Stabil</span>
+              </div>
+            </div>
+          </div>
+          <div class="card analytics-sides">
+            <div class="card-title">Top side</div>
+            <div id="analyticsSides" class="chip-list">
+              <span class="chip">Planning</span>
+              <span class="chip">Design</span>
+              <span class="chip">Research</span>
+            </div>
+          </div>
+          <div class="card analytics-week">
+            <div class="card-title">7 hari terakhir</div>
+            <div id="analyticsWeekList" class="week-list">
+              <div class="week-row">
+                <div class="week-label">Sen</div>
+                <div class="week-bar"><span style="width:60%"></span></div>
+                <div class="week-value">XP 60</div>
+              </div>
+              <div class="week-row">
+                <div class="week-label">Sel</div>
+                <div class="week-bar"><span style="width:40%"></span></div>
+                <div class="week-value">XP 40</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-section="tracking">
+        <div class="tracking-grid">
+          <div class="card tracking-summary">
+            <div class="card-title">Tracking</div>
+            <div class="card-subtitle">Ritme fokus harian</div>
+            <div class="tracking-stats">
+              <div class="tracking-item">
+                <div class="tracking-label">Durasi fokus</div>
+                <div class="tracking-value">3j 20m</div>
+                <div class="tracking-note">7 hari terakhir</div>
+              </div>
+              <div class="tracking-item">
+                <div class="tracking-label">Sesi fokus</div>
+                <div class="tracking-value">12 sesi</div>
+                <div class="tracking-note">Rata-rata 45m</div>
+              </div>
+              <div class="tracking-item">
+                <div class="tracking-label">Break terbaik</div>
+                <div class="tracking-value">10m</div>
+                <div class="tracking-note">Keseimbangan energi</div>
+              </div>
+            </div>
+          </div>
+          <div class="card tracking-schedule">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Jadwal fokus</div>
+                <div class="card-subtitle">Agenda terjadwal</div>
+              </div>
+              <button class="icon-button" aria-label="Opsi lainnya">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="6" cy="12" r="1.6" fill="currentColor"/>
+                  <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+                  <circle cx="18" cy="12" r="1.6" fill="currentColor"/>
+                </svg>
+              </button>
+            </div>
+            <div class="calendar-list">
+              <div class="calendar-item">
+                <div class="calendar-time">08:30</div>
+                <div class="calendar-divider"></div>
+                <div class="calendar-info">
+                  <div class="calendar-title">Deep work</div>
+                  <div class="calendar-note">Strategi Q1</div>
+                </div>
+              </div>
+              <div class="calendar-item">
+                <div class="calendar-time">11:00</div>
+                <div class="calendar-divider"></div>
+                <div class="calendar-info">
+                  <div class="calendar-title">Review task</div>
+                  <div class="calendar-note">Sprint Backlog</div>
+                </div>
+              </div>
+              <div class="calendar-item">
+                <div class="calendar-time">15:00</div>
+                <div class="calendar-divider"></div>
+                <div class="calendar-info">
+                  <div class="calendar-title">Sync tim</div>
+                  <div class="calendar-note">Project Pulse</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-section="settings">
+        <div class="content-grid">
+          <div class="card card-span-2">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Settings</div>
+                <div class="card-subtitle">Atur tampilan dan profil</div>
+              </div>
+              <div class="header-actions">
+                <button class="btn-ghost btn-compact" data-settings-link="profile">Edit Profil</button>
+                <button id="settingsSave" class="btn-primary">Simpan</button>
+              </div>
+            </div>
+            <div class="settings-tabs">
+              <button class="settings-tab is-active" data-settings-tab="display">Tampilan</button>
+              <button class="settings-tab" data-settings-tab="profile">Profile</button>
+            </div>
+            <div class="settings-panel is-active" data-settings-panel="display">
+              <div class="settings-section">
+                <div class="settings-title">Tampilan</div>
+                <div class="settings-subtitle">Atur ukuran tampilan dan efek transparan</div>
+                <div class="settings-form">
+                  <div class="settings-field">
+                    <label class="settings-label" for="zoomSelect">Zoom tampilan</label>
+                    <select id="zoomSelect" class="input">
+                      <option value="100">100%</option>
+                      <option value="125">125%</option>
+                      <option value="150">150%</option>
+                    </select>
+                  </div>
+                  <div class="settings-field">
+                    <label class="settings-label" for="glassToggle">Efek transparan</label>
+                    <label class="toggle">
+                      <input id="glassToggle" type="checkbox">
+                      <span class="toggle-track"></span>
+                      <span class="toggle-label">Aktifkan transparansi ringan</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="settings-divider"></div>
+              <div class="settings-actions">
+                <button id="resetData" class="btn-danger">Reset Data</button>
+                <button id="backupData" class="btn-ghost">Backup Data</button>
+                <button id="restoreData" class="btn-ghost">Restore Data</button>
+                <button id="exportPdf" class="btn-ghost">Export PDF</button>
+              </div>
+              <div class="settings-muted">copyright &copy; 2026 Indrautomoputra</div>
+            </div>
+            <div class="settings-panel" data-settings-panel="profile">
+              <div class="settings-section">
+                <div class="settings-title">Edit profil</div>
+                <div class="settings-subtitle">Perbarui nama, email, dan avatar</div>
+                <div class="settings-form">
+                  <div class="settings-field">
+                    <label class="settings-label" for="profileNameInput">Nama</label>
+                    <input id="profileNameInput" type="text" class="input" placeholder="Nama kamu">
+                    <span id="profileNameError" class="input-error is-hidden">Nama wajib diisi (2-60 karakter).</span>
+                  </div>
+                  <div class="settings-field">
+                    <label class="settings-label" for="profileEmailInput">Email</label>
+                    <input id="profileEmailInput" type="email" class="input" placeholder="nama@email.com">
+                    <span id="profileEmailError" class="input-error is-hidden">Format email tidak valid.</span>
+                  </div>
+                  <div class="settings-field">
+                    <label class="settings-label" for="profilePhotoInput">Foto profil</label>
+                    <input id="profilePhotoInput" type="file" class="input" accept="image/*">
+                  </div>
+                </div>
+                <div class="profile-preview-card">
+                  <img id="profilePreview" class="profile-avatar preview" alt="Preview foto profil">
+                  <div class="profile-preview-meta">
+                    <div id="profilePreviewName" class="profile-name">Raka Pratama</div>
+                    <div id="profilePreviewEmail" class="profile-role">raka@streakly.app</div>
+                  </div>
+                </div>
+                <div class="profile-actions">
+                  <button id="profileCancel" class="btn-ghost">Batal</button>
+                  <button id="profileSave" class="btn-primary">Simpan Profil</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="section" data-section="about">
+        <div class="about-shell">
+          <div class="about-hero">
+            <div class="card">
+              <div class="card-title">About Streakly</div>
+              <div class="card-subtitle">Desktop app produktivitas offline-first dengan gamifikasi XP & streak.</div>
+              <div class="text-body">Streakly memadukan manajemen task, XP, streak, dan analytics 30 hari untuk ritme kerja yang stabil.</div>
+            </div>
+          </div>
+          <div class="about-tabs">
+            <button class="about-tab is-active" data-about-tab="overview">Overview</button>
+            <button class="about-tab" data-about-tab="release">Release</button>
+            <button class="about-tab" data-about-tab="credits">Credits</button>
+            <button class="about-tab" data-about-tab="docs">Documentation</button>
+            <button class="about-tab" data-about-tab="measure">Measurement</button>
+            <button class="about-tab" data-about-tab="usability">Usability</button>
+            <button class="about-tab" data-about-tab="typography">Typography</button>
+          </div>
+          <div class="about-panel is-active" data-about-panel="overview">
+            <div class="about-grid">
+              <div class="about-item">
+                <div class="about-label">Focus</div>
+                <div class="about-value">Task, XP, Streak, Analytics 30 Hari</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Mode</div>
+                <div class="about-value">Offline-first</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Arsitektur</div>
+                <div class="about-value">Electron + SQLite</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Theme</div>
+                <div class="about-value">CSS Variables</div>
+              </div>
+            </div>
+          </div>
+          <div class="about-panel" data-about-panel="release">
+            <div class="about-grid">
+              <div class="about-item">
+                <div class="about-label">Versi Aplikasi</div>
+                <div class="about-value">1.0.0</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Tanggal Rilis</div>
+                <div class="about-value">13 Feb 2026</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Platform</div>
+                <div class="about-value">Windows Desktop</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Build</div>
+                <div class="about-value">Electron 28</div>
+              </div>
+            </div>
+          </div>
+          <div class="about-panel" data-about-panel="credits">
+            <div class="about-grid">
+              <div class="about-item">
+                <div class="about-label">Creator</div>
+                <div class="about-value">Indrautomoputra</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Team</div>
+                <div class="about-value">Product, Design, Engineering</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Core Values</div>
+                <div class="about-value">Clarity, Consistency, Momentum</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Credits</div>
+                <div class="about-value">Streakly Design + Engineering</div>
+              </div>
+            </div>
+          </div>
+          <div class="about-panel" data-about-panel="docs">
+            <div class="card">
+              <div class="card-title">Dokumentasi Produk</div>
+              <div class="card-subtitle">Referensi arsitektur, fitur, dan roadmap.</div>
+              <a class="about-link" href="https://github.com/indrautomoputra/streakly.git" target="_blank" rel="noreferrer">https://github.com/indrautomoputra/streakly.git</a>
+            </div>
+          </div>
+          <div class="about-panel" data-about-panel="measure">
+            <div class="about-grid">
+              <div class="about-item">
+                <div class="about-label">Viewport Fill</div>
+                <div class="about-value">Before: margin 72px & max-width 1440</div>
+                <div class="text-caption">After: full width/height, padding internal 16–24px</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Grid Spacing</div>
+                <div class="about-value">Before: 10/12/14px mixed</div>
+                <div class="text-caption">After: 8/16/24px scale</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Header Height</div>
+                <div class="about-value">Before: single-row header</div>
+                <div class="text-caption">After: two-row glass header (estimasi 96–120px)</div>
+              </div>
+              <div class="about-item">
+                <div class="about-label">Primary Typography</div>
+                <div class="about-value">Before: 12–20px mixed</div>
+                <div class="text-caption">After: 12/16/20/25/32 modular scale</div>
+              </div>
+            </div>
+          </div>
+          <div class="about-panel" data-about-panel="usability">
+            <div class="card">
+              <div class="card-title">Usability Testing (Simulasi Internal)</div>
+              <div class="card-subtitle">5 user sample untuk validasi keterbacaan 5 detik.</div>
+              <div class="about-grid">
+                <div class="about-item">
+                  <div class="about-label">User 1</div>
+                  <div class="about-value">Paham pesan & CTA dalam 4 detik</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">User 2</div>
+                  <div class="about-value">Paham pesan dalam 3 detik</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">User 3</div>
+                  <div class="about-value">Paham pesan dalam 5 detik</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">User 4</div>
+                  <div class="about-value">Paham pesan dalam 4 detik</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">User 5</div>
+                  <div class="about-value">Paham pesan dalam 3 detik</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="about-panel" data-about-panel="typography">
+            <div class="card">
+              <div class="card-title">Typography Tokens</div>
+              <div class="card-subtitle">Modular scale 1.25 dengan line-height 1.4/1.6.</div>
+              <div class="about-grid">
+                <div class="about-item">
+                  <div class="about-label">H1</div>
+                  <div class="about-value">32px / 1.4 / 700</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">H2</div>
+                  <div class="about-value">25px / 1.4 / 600</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">H3</div>
+                  <div class="about-value">20px / 1.4 / 600</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">Body</div>
+                  <div class="about-value">16px / 1.6 / 400</div>
+                </div>
+                <div class="about-item">
+                  <div class="about-label">Caption</div>
+                  <div class="about-value">12px / 1.6 / 400</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="right-panel">
+      <div class="panel-header">
+        <div class="panel-title">Calendar</div>
+        <button class="icon-button" aria-label="Opsi lainnya" data-section-target="calendar">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 12h10M7 7h10M7 17h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="panel-date" id="calendarDate">Kamis, 12 Feb 2026</div>
+      <div class="panel-group">
+        <div class="panel-day" data-reminder-date="2026-02-12">Hari ini <span class="panel-reminder is-hidden">⏰</span></div>
+        <div id="calendarTaskList" class="panel-list"></div>
+      </div>
+    </aside>
+  </div>
+  </div>
+  <div id="reminderModal" class="modal is-hidden">
+    <div class="modal-backdrop" data-close="reminder"></div>
+    <div class="modal-card">
+      <div class="modal-title">Set Reminder</div>
+      <div class="modal-body">
+        <label class="settings-label" for="reminderDateInput">Tanggal</label>
+        <input id="reminderDateInput" type="date" class="input">
+        <label class="settings-label" for="reminderTimeInput">Jam</label>
+        <input id="reminderTimeInput" type="time" class="input" value="09:00">
+      </div>
+      <div class="modal-actions">
+        <button id="reminderRemove" class="btn-ghost">Hapus</button>
+        <button id="reminderSave" class="btn-primary">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="calendarQuickAdd" class="modal is-hidden">
+    <div class="modal-backdrop" data-close="calendar"></div>
+    <div class="modal-card">
+      <div class="modal-title">Tambah Task</div>
+      <div class="modal-body">
+        <label class="settings-label" for="calendarQuickDate">Tanggal</label>
+        <input id="calendarQuickDate" type="date" class="input">
+        <label class="settings-label" for="calendarQuickTitle">Judul</label>
+        <input id="calendarQuickTitle" type="text" class="input" placeholder="Judul task">
+        <label class="settings-label" for="calendarQuickSide">Side</label>
+        <input id="calendarQuickSide" type="text" class="input" placeholder="Nama side (opsional)">
+        <label class="settings-label" for="calendarQuickCategory">Kategori</label>
+        <select id="calendarQuickCategory" class="input"></select>
+      </div>
+      <div class="modal-actions">
+        <button id="calendarQuickCancel" class="btn-ghost">Batal</button>
+        <button id="calendarQuickSave" class="btn-primary">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="roleGate" class="role-gate is-hidden">
+    <div class="role-gate-card">
+      <div class="role-gate-title">Pilih Role</div>
+      <div class="role-gate-subtitle">Akses fitur sesuai peran pekerjaan.</div>
+      <div class="role-gate-actions">
+        <button id="roleSelectDeveloper" class="btn-primary">Developer</button>
+        <button id="roleSelectEmployee" class="btn-ghost">Karyawan</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../renderer/calendar-utils.js"></script>
+  <script src="../renderer/renderer.js"></script>
+
+</body>
+</html>
