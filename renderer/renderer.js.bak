@@ -8,6 +8,10 @@ import {
   THEME_PRESETS, 
   DEFAULT_AVATAR as defaultAvatar, 
   DEFAULT_CATEGORIES,
+  REGISTRATION_SCHEMA_KEY,
+  REGISTRATION_TEMPLATE_KEY,
+  REGISTRATION_SUBMISSION_KEY,
+  REGISTRATION_PREFS_KEY,
   ANALYTICS_OPT_IN_KEY,
   EVENT_LOG_KEY,
   FEEDBACK_STORAGE_KEY,
@@ -88,8 +92,165 @@ window.api = new Proxy(window.api || {}, {
   }
 });
 let currentThemeMode = 'light';
+let registrationSchema = [];
+let registrationTemplates = [];
+let registrationPrefs = { role: 'developer', language: 'id', template: 'pegawai-negeri' };
+let registrationSubmissions = [];
 let currentRole = null;
 let accessNoticeTimer = null;
+const REGISTRATION_I18N = {
+  id: {
+    builderTitle: 'Form Pendaftaran Dinamis',
+    builderSubtitle: 'Kelola field dengan drag-and-drop dan simpan template.',
+    previewTitle: 'Preview Form',
+    previewSubtitle: 'Isi data dan lakukan validasi real-time.',
+    roleLabel: 'Role Akses',
+    languageLabel: 'Bahasa',
+    templateLabel: 'Template Pekerjaan',
+    saveTemplateLabel: 'Simpan Template',
+    saveTemplateButton: 'Simpan',
+    paletteTitle: 'Tambah Field',
+    fieldListTitle: 'Field Aktif',
+    submitButton: 'Kirim',
+    resetButton: 'Reset',
+    exportPdf: 'Export PDF',
+    exportExcel: 'Export Excel',
+    statusSaved: 'Data berhasil disimpan.',
+    statusEmpty: 'Belum ada data untuk diexport.',
+    statusExported: 'Data berhasil diexport.',
+    requiredLabel: 'Wajib',
+    labelLabel: 'Label',
+    typeLabel: 'Tipe',
+    optionsLabel: 'Opsi',
+    removeLabel: 'Hapus',
+    templatePlaceholder: 'Nama template',
+    developerRole: 'Developer',
+    endUserRole: 'End-user',
+    validationRequired: 'Wajib diisi',
+    validationEmail: 'Email tidak valid',
+    validationPhone: 'Nomor telepon tidak valid',
+    validationUrl: 'URL tidak valid',
+    validationNumber: 'Angka tidak valid',
+    fieldTypes: {
+      text: 'Teks',
+      email: 'Email',
+      phone: 'Telepon',
+      number: 'Angka',
+      date: 'Tanggal',
+      url: 'URL',
+      textarea: 'Paragraf',
+      select: 'Pilihan'
+    },
+    fieldLabels: {
+      fullName: 'Nama lengkap',
+      email: 'Email',
+      phone: 'Nomor telepon',
+      nip: 'NIP',
+      cert: 'Nomor Sertifikasi Profesi',
+      portfolio: 'Portofolio',
+      company: 'Instansi/Perusahaan',
+      position: 'Jabatan',
+      address: 'Alamat',
+      notes: 'Catatan',
+      custom: 'Field baru',
+      options: 'Opsi (pisahkan dengan koma)'
+    }
+  },
+  en: {
+    builderTitle: 'Dynamic Registration Form',
+    builderSubtitle: 'Drag-and-drop fields and save templates.',
+    previewTitle: 'Form Preview',
+    previewSubtitle: 'Fill data with real-time validation.',
+    roleLabel: 'Access Role',
+    languageLabel: 'Language',
+    templateLabel: 'Job Template',
+    saveTemplateLabel: 'Save Template',
+    saveTemplateButton: 'Save',
+    paletteTitle: 'Add Field',
+    fieldListTitle: 'Active Fields',
+    submitButton: 'Submit',
+    resetButton: 'Reset',
+    exportPdf: 'Export PDF',
+    exportExcel: 'Export Excel',
+    statusSaved: 'Data saved successfully.',
+    statusEmpty: 'No data to export yet.',
+    statusExported: 'Data exported successfully.',
+    requiredLabel: 'Required',
+    labelLabel: 'Label',
+    typeLabel: 'Type',
+    optionsLabel: 'Options',
+    removeLabel: 'Remove',
+    templatePlaceholder: 'Template name',
+    developerRole: 'Developer',
+    endUserRole: 'End-user',
+    validationRequired: 'Required',
+    validationEmail: 'Invalid email',
+    validationPhone: 'Invalid phone number',
+    validationUrl: 'Invalid URL',
+    validationNumber: 'Invalid number',
+    fieldTypes: {
+      text: 'Text',
+      email: 'Email',
+      phone: 'Phone',
+      number: 'Number',
+      date: 'Date',
+      url: 'URL',
+      textarea: 'Paragraph',
+      select: 'Select'
+    },
+    fieldLabels: {
+      fullName: 'Full name',
+      email: 'Email',
+      phone: 'Phone number',
+      nip: 'Civil ID',
+      cert: 'Professional Certification',
+      portfolio: 'Portfolio',
+      company: 'Company',
+      position: 'Position',
+      address: 'Address',
+      notes: 'Notes',
+      custom: 'New field',
+      options: 'Options (comma separated)'
+    }
+  }
+};
+const REGISTRATION_DEFAULT_TEMPLATES = [
+  {
+    id: 'pegawai-negeri',
+    name: { id: 'Pegawai Negeri', en: 'Civil Servant' },
+    fields: [
+      { id: 'fullName', labelKey: 'fullName', type: 'text', required: true },
+      { id: 'email', labelKey: 'email', type: 'email', required: true },
+      { id: 'phone', labelKey: 'phone', type: 'phone', required: true },
+      { id: 'nip', labelKey: 'nip', type: 'text', required: true },
+      { id: 'position', labelKey: 'position', type: 'text', required: false },
+      { id: 'address', labelKey: 'address', type: 'textarea', required: false }
+    ]
+  },
+  {
+    id: 'swasta',
+    name: { id: 'Pekerja Swasta', en: 'Private Sector' },
+    fields: [
+      { id: 'fullName', labelKey: 'fullName', type: 'text', required: true },
+      { id: 'email', labelKey: 'email', type: 'email', required: true },
+      { id: 'phone', labelKey: 'phone', type: 'phone', required: true },
+      { id: 'company', labelKey: 'company', type: 'text', required: true },
+      { id: 'cert', labelKey: 'cert', type: 'text', required: false },
+      { id: 'position', labelKey: 'position', type: 'text', required: false }
+    ]
+  },
+  {
+    id: 'kreatif',
+    name: { id: 'Pekerja Kreatif', en: 'Creative' },
+    fields: [
+      { id: 'fullName', labelKey: 'fullName', type: 'text', required: true },
+      { id: 'email', labelKey: 'email', type: 'email', required: true },
+      { id: 'phone', labelKey: 'phone', type: 'phone', required: false },
+      { id: 'portfolio', labelKey: 'portfolio', type: 'url', required: true },
+      { id: 'notes', labelKey: 'notes', type: 'textarea', required: false }
+    ]
+  }
+];
 
 const ROLE_PERMISSIONS = {
   developer: ['dashboard', 'calendar', 'analytics', 'tasks', 'tracking', 'settings', 'about'],
@@ -153,6 +314,123 @@ function updateWordmarkTheme(mode) {
     wordmark.classList.remove('is-switching');
   };
   img.src = next;
+}
+
+
+
+function getRegistrationI18n(language) {
+  return REGISTRATION_I18N[language] || REGISTRATION_I18N.id;
+}
+
+function resolveRegistrationLabel(field, language) {
+  const i18n = getRegistrationI18n(language);
+  if (field.label) return field.label;
+  if (field.labelKey && i18n.fieldLabels[field.labelKey]) return i18n.fieldLabels[field.labelKey];
+  return i18n.fieldLabels.custom;
+}
+
+function loadRegistrationPrefs() {
+  try {
+    const raw = window.localStorage.getItem(REGISTRATION_PREFS_KEY);
+    if (!raw) return { role: 'developer', language: 'id', template: 'pegawai-negeri' };
+    const parsed = JSON.parse(raw);
+    return {
+      role: parsed.role === 'end-user' ? 'end-user' : 'developer',
+      language: parsed.language === 'en' ? 'en' : 'id',
+      template: String(parsed.template || 'pegawai-negeri')
+    };
+  } catch (err) {
+    return { role: 'developer', language: 'id', template: 'pegawai-negeri' };
+  }
+}
+
+function saveRegistrationPrefs(prefs) {
+  window.localStorage.setItem(REGISTRATION_PREFS_KEY, JSON.stringify(prefs));
+}
+
+function loadRegistrationTemplates() {
+  try {
+    const raw = window.localStorage.getItem(REGISTRATION_TEMPLATE_KEY);
+    const custom = raw ? JSON.parse(raw) : [];
+    const customList = Array.isArray(custom) ? custom : [];
+    return [...REGISTRATION_DEFAULT_TEMPLATES, ...customList];
+  } catch (err) {
+    return [...REGISTRATION_DEFAULT_TEMPLATES];
+  }
+}
+
+function saveRegistrationTemplates(templates) {
+  const custom = templates.filter(
+    (template) => !REGISTRATION_DEFAULT_TEMPLATES.find((base) => base.id === template.id)
+  );
+  window.localStorage.setItem(REGISTRATION_TEMPLATE_KEY, JSON.stringify(custom));
+}
+
+function loadRegistrationSchema(prefs, templates) {
+  try {
+    const raw = window.localStorage.getItem(REGISTRATION_SCHEMA_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch (err) {
+  }
+  const fallback = templates.find((template) => template.id === prefs.template) || templates[0];
+  return JSON.parse(JSON.stringify(fallback?.fields || []));
+}
+
+function saveRegistrationSchema(schema) {
+  window.localStorage.setItem(REGISTRATION_SCHEMA_KEY, JSON.stringify(schema));
+}
+
+function loadRegistrationSubmissions() {
+  try {
+    const raw = window.localStorage.getItem(REGISTRATION_SUBMISSION_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function saveRegistrationSubmissions(submissions) {
+  window.localStorage.setItem(REGISTRATION_SUBMISSION_KEY, JSON.stringify(submissions));
+}
+
+function createRegistrationField(type, language) {
+  const i18n = getRegistrationI18n(language);
+  const id = `field_${Date.now()}_${Math.random().toString(16).slice(2, 6)}`;
+  return {
+    id,
+    label: i18n.fieldLabels.custom,
+    type,
+    required: false,
+    options: type === 'select' ? ['Option 1', 'Option 2'] : []
+  };
+}
+
+function validateRegistrationValue(field, value, language) {
+  const i18n = getRegistrationI18n(language);
+  const trimmed = String(value || '').trim();
+  if (field.required && !trimmed) return i18n.validationRequired;
+  if (!trimmed) return '';
+  if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return i18n.validationEmail;
+  }
+  if (field.type === 'phone' && !/^[0-9+()\s-]{8,}$/.test(trimmed)) {
+    return i18n.validationPhone;
+  }
+  if (field.type === 'url') {
+    try {
+      new URL(trimmed);
+    } catch (err) {
+      return i18n.validationUrl;
+    }
+  }
+  if (field.type === 'number' && Number.isNaN(Number(trimmed))) {
+    return i18n.validationNumber;
+  }
+  return '';
 }
 
 function loadCategories() {
@@ -3418,6 +3696,439 @@ function setupNavigation() {
   });
 }
 
+function applyRegistrationLanguage(language) {
+  const section = document.querySelector('[data-section="registration"]');
+  if (!section) return;
+  const i18n = getRegistrationI18n(language);
+  section.querySelectorAll('[data-i18n]').forEach((node) => {
+    const key = node.getAttribute('data-i18n');
+    if (key && i18n[key]) node.textContent = i18n[key];
+  });
+  const templateInput = document.getElementById('registrationTemplateName');
+  if (templateInput) templateInput.placeholder = i18n.templatePlaceholder;
+  const roleSelect = document.getElementById('registrationRoleSelect');
+  if (roleSelect) {
+    roleSelect.querySelectorAll('option').forEach((option) => {
+      if (option.value === 'developer') option.textContent = i18n.developerRole;
+      if (option.value === 'end-user') option.textContent = i18n.endUserRole;
+    });
+  }
+}
+
+function renderRegistrationTemplateOptions(templates, language) {
+  const select = document.getElementById('registrationTemplateSelect');
+  if (!select) return;
+  const i18n = getRegistrationI18n(language);
+  select.innerHTML = templates
+    .map((template) => {
+      const label =
+        (language === 'en' ? template.name?.en : template.name?.id) ||
+        template.name?.id ||
+        template.name?.en ||
+        i18n.templateLabel;
+      return `<option value="${escapeHtml(template.id)}">${escapeHtml(label)}</option>`;
+    })
+    .join('');
+}
+
+function renderRegistrationPalette(language) {
+  const palette = document.getElementById('registrationPalette');
+  if (!palette) return;
+  const i18n = getRegistrationI18n(language);
+  const types = Object.keys(i18n.fieldTypes);
+  palette.innerHTML = types
+    .map(
+      (type) =>
+        `<button class="field-palette-item" type="button" draggable="true" data-field-type="${type}">${i18n.fieldTypes[type]}</button>`
+    )
+    .join('');
+}
+
+function renderRegistrationFieldList(schema, language, role) {
+  const list = document.getElementById('registrationFieldList');
+  if (!list) return;
+  const i18n = getRegistrationI18n(language);
+  list.innerHTML = schema
+    .map((field, index) => {
+      const label = resolveRegistrationLabel(field, language);
+      const options = Object.keys(i18n.fieldTypes)
+        .map(
+          (type) =>
+            `<option value="${type}" ${field.type === type ? 'selected' : ''}>${i18n.fieldTypes[type]}</option>`
+        )
+        .join('');
+      const optionsValue = (field.options || []).join(', ');
+      const showOptions = field.type === 'select' ? 'block' : 'none';
+      return `
+        <div class="field-item" draggable="true" data-field-id="${escapeHtml(field.id)}" data-field-index="${index}">
+          <span class="field-item-handle">⋮⋮</span>
+          <div class="field-item-main">
+            <input class="input field-label-input" type="text" value="${escapeHtml(label)}" placeholder="${escapeHtml(i18n.labelLabel)}">
+            <select class="input field-type-select">${options}</select>
+            <label class="toggle">
+              <input class="field-required-toggle" type="checkbox" ${field.required ? 'checked' : ''}>
+              <span class="toggle-track"></span>
+              <span class="toggle-label">${i18n.requiredLabel}</span>
+            </label>
+          </div>
+          <div class="field-item-actions">
+            <button class="btn-ghost btn-compact" type="button" data-field-remove="${escapeHtml(field.id)}">${i18n.removeLabel}</button>
+          </div>
+        </div>
+        <div class="field-options-row" data-field-options="${escapeHtml(field.id)}" style="display:${showOptions}">
+          <input class="input field-options-input" type="text" value="${escapeHtml(optionsValue)}" placeholder="${escapeHtml(i18n.fieldLabels.options)}">
+        </div>
+      `;
+    })
+    .join('');
+  if (role === 'end-user') return;
+}
+
+function renderRegistrationForm(schema, language) {
+  const form = document.getElementById('registrationForm');
+  if (!form) return;
+  const i18n = getRegistrationI18n(language);
+  form.innerHTML = schema
+    .map((field) => {
+      const label = resolveRegistrationLabel(field, language);
+      const id = escapeHtml(field.id);
+      const required = field.required ? 'required' : '';
+      if (field.type === 'textarea') {
+        return `
+          <div class="form-row full">
+            <label class="settings-label" for="${id}">${escapeHtml(label)}</label>
+            <textarea id="${id}" class="input" rows="3" data-field-id="${id}" ${required}></textarea>
+            <div class="form-error" data-error-for="${id}"></div>
+          </div>
+        `;
+      }
+      if (field.type === 'select') {
+        const options = (field.options || ['Option 1', 'Option 2'])
+          .map((opt) => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`)
+          .join('');
+        return `
+          <div class="form-row">
+            <label class="settings-label" for="${id}">${escapeHtml(label)}</label>
+            <select id="${id}" class="input" data-field-id="${id}" ${required}>
+              ${options}
+            </select>
+            <div class="form-error" data-error-for="${id}"></div>
+          </div>
+        `;
+      }
+      const inputType =
+        field.type === 'email'
+          ? 'email'
+          : field.type === 'phone'
+            ? 'tel'
+            : field.type === 'number'
+              ? 'number'
+              : field.type === 'date'
+                ? 'date'
+                : field.type === 'url'
+                  ? 'url'
+                  : 'text';
+      return `
+        <div class="form-row">
+          <label class="settings-label" for="${id}">${escapeHtml(label)}</label>
+          <input id="${id}" class="input" type="${inputType}" data-field-id="${id}" ${required}>
+          <div class="form-error" data-error-for="${id}"></div>
+        </div>
+      `;
+    })
+    .join('');
+  form.querySelectorAll('[data-field-id]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const fieldId = input.getAttribute('data-field-id');
+      const field = registrationSchema.find((item) => item.id === fieldId);
+      if (!field) return;
+      const message = validateRegistrationValue(field, input.value, language);
+      const errorNode = form.querySelector(`[data-error-for="${fieldId}"]`);
+      if (errorNode) errorNode.textContent = message;
+      input.classList.toggle('is-invalid', Boolean(message));
+    });
+  });
+}
+
+function setRegistrationStatus(message) {
+  const status = document.getElementById('registrationSubmissionStatus');
+  if (status) status.textContent = message;
+}
+
+function renderRegistrationBuilder() {
+  applyRegistrationLanguage(registrationPrefs.language);
+  renderRegistrationTemplateOptions(registrationTemplates, registrationPrefs.language);
+  renderRegistrationPalette(registrationPrefs.language);
+  renderRegistrationFieldList(registrationSchema, registrationPrefs.language, registrationPrefs.role);
+  renderRegistrationForm(registrationSchema, registrationPrefs.language);
+}
+
+function setupRegistrationBuilder() {
+  const section = document.querySelector('[data-section="registration"]');
+  if (!section) return;
+  registrationPrefs = loadRegistrationPrefs();
+  registrationTemplates = loadRegistrationTemplates();
+  registrationSchema = loadRegistrationSchema(registrationPrefs, registrationTemplates);
+  registrationSubmissions = loadRegistrationSubmissions();
+
+  const roleSelect = document.getElementById('registrationRoleSelect');
+  const languageSelect = document.getElementById('registrationLanguageSelect');
+  const templateSelect = document.getElementById('registrationTemplateSelect');
+  const templateInput = document.getElementById('registrationTemplateName');
+  const templateSave = document.getElementById('registrationTemplateSave');
+  const submitButton = document.getElementById('registrationSubmit');
+  const resetButton = document.getElementById('registrationReset');
+  const exportPdf = document.getElementById('registrationExportPdf');
+  const exportExcel = document.getElementById('registrationExportExcel');
+  const builderCard = section.querySelector('.registration-builder');
+  function wireFieldListEvents() {
+    const list = document.getElementById('registrationFieldList');
+    if (!list) return;
+    list.querySelectorAll('.field-item').forEach((item) => {
+      item.addEventListener('dragstart', (event) => {
+        if (registrationPrefs.role === 'end-user') return;
+        const id = item.getAttribute('data-field-id') || '';
+        event.dataTransfer?.setData('text/plain', `field:${id}`);
+      });
+    });
+    list.querySelectorAll('.field-label-input').forEach((input) => {
+      input.addEventListener('input', () => {
+        const fieldId = input.closest('.field-item')?.getAttribute('data-field-id');
+        const field = registrationSchema.find((item) => item.id === fieldId);
+        if (!field) return;
+        field.label = input.value;
+        saveRegistrationSchema(registrationSchema);
+        renderRegistrationForm(registrationSchema, registrationPrefs.language);
+      });
+    });
+    list.querySelectorAll('.field-type-select').forEach((select) => {
+      select.addEventListener('change', () => {
+        const fieldId = select.closest('.field-item')?.getAttribute('data-field-id');
+        const field = registrationSchema.find((item) => item.id === fieldId);
+        if (!field) return;
+        field.type = select.value;
+        if (field.type === 'select' && (!field.options || !field.options.length)) {
+          field.options = ['Option 1', 'Option 2'];
+        }
+        saveRegistrationSchema(registrationSchema);
+        renderAndWire();
+      });
+    });
+    list.querySelectorAll('.field-required-toggle').forEach((toggle) => {
+      toggle.addEventListener('change', () => {
+        const fieldId = toggle.closest('.field-item')?.getAttribute('data-field-id');
+        const field = registrationSchema.find((item) => item.id === fieldId);
+        if (!field) return;
+        field.required = toggle.checked;
+        saveRegistrationSchema(registrationSchema);
+        renderRegistrationForm(registrationSchema, registrationPrefs.language);
+      });
+    });
+    list.querySelectorAll('[data-field-remove]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const fieldId = button.getAttribute('data-field-remove');
+        registrationSchema = registrationSchema.filter((field) => field.id !== fieldId);
+        saveRegistrationSchema(registrationSchema);
+        renderAndWire();
+      });
+    });
+    list.querySelectorAll('.field-options-input').forEach((input) => {
+      input.addEventListener('input', () => {
+        const fieldId = input.parentElement?.getAttribute('data-field-options');
+        const field = registrationSchema.find((item) => item.id === fieldId);
+        if (!field) return;
+        field.options = input.value.split(',').map((opt) => opt.trim()).filter(Boolean);
+        saveRegistrationSchema(registrationSchema);
+        renderRegistrationForm(registrationSchema, registrationPrefs.language);
+      });
+    });
+  }
+  const renderAndWire = () => {
+    renderRegistrationBuilder();
+    wireFieldListEvents();
+    if (templateSelect) templateSelect.value = registrationPrefs.template;
+  };
+
+  if (roleSelect) roleSelect.value = registrationPrefs.role;
+  if (languageSelect) languageSelect.value = registrationPrefs.language;
+
+  const setRoleState = (role) => {
+    if (builderCard) builderCard.classList.toggle('is-readonly', role === 'end-user');
+    if (templateSelect) templateSelect.disabled = role === 'end-user';
+  };
+  setRoleState(registrationPrefs.role);
+
+  if (roleSelect) {
+    roleSelect.addEventListener('change', () => {
+      registrationPrefs.role = roleSelect.value === 'end-user' ? 'end-user' : 'developer';
+      saveRegistrationPrefs(registrationPrefs);
+      setRoleState(registrationPrefs.role);
+      renderAndWire();
+    });
+  }
+
+  if (languageSelect) {
+    languageSelect.addEventListener('change', () => {
+      registrationPrefs.language = languageSelect.value === 'en' ? 'en' : 'id';
+      saveRegistrationPrefs(registrationPrefs);
+      renderAndWire();
+    });
+  }
+
+  if (templateSelect) {
+    templateSelect.addEventListener('change', () => {
+      registrationPrefs.template = templateSelect.value;
+      saveRegistrationPrefs(registrationPrefs);
+      const selected = registrationTemplates.find((template) => template.id === templateSelect.value);
+      registrationSchema = JSON.parse(JSON.stringify(selected?.fields || []));
+      saveRegistrationSchema(registrationSchema);
+      renderAndWire();
+    });
+  }
+
+  if (templateSave && templateInput) {
+    templateSave.addEventListener('click', () => {
+      const name = templateInput.value.trim();
+      if (!name) return;
+      const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const newTemplate = {
+        id: id || `template-${Date.now()}`,
+        name: { id: name, en: name },
+        fields: JSON.parse(JSON.stringify(registrationSchema))
+      };
+      registrationTemplates = [...registrationTemplates.filter((item) => item.id !== newTemplate.id), newTemplate];
+      saveRegistrationTemplates(registrationTemplates);
+      templateInput.value = '';
+      renderAndWire();
+    });
+  }
+
+  const palette = document.getElementById('registrationPalette');
+  if (palette) {
+    palette.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const type = target.getAttribute('data-field-type');
+      if (!type || registrationPrefs.role === 'end-user') return;
+      registrationSchema = [...registrationSchema, createRegistrationField(type, registrationPrefs.language)];
+      saveRegistrationSchema(registrationSchema);
+      renderAndWire();
+    });
+    palette.addEventListener('dragstart', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const type = target.getAttribute('data-field-type');
+      if (!type) return;
+      event.dataTransfer?.setData('text/plain', `palette:${type}`);
+    });
+  }
+
+  const fieldList = document.getElementById('registrationFieldList');
+  if (fieldList) {
+    fieldList.addEventListener('dragover', (event) => {
+      if (registrationPrefs.role === 'end-user') return;
+      event.preventDefault();
+    });
+    fieldList.addEventListener('drop', (event) => {
+      if (registrationPrefs.role === 'end-user') return;
+      event.preventDefault();
+      const payload = event.dataTransfer?.getData('text/plain') || '';
+      const targetItem = (event.target instanceof Element && event.target.closest('.field-item')) || null;
+      const targetIndex = targetItem ? Number(targetItem.getAttribute('data-field-index')) : registrationSchema.length;
+      if (payload.startsWith('palette:')) {
+        const type = payload.replace('palette:', '');
+        if (!type) return;
+        const field = createRegistrationField(type, registrationPrefs.language);
+        registrationSchema.splice(targetIndex, 0, field);
+        saveRegistrationSchema(registrationSchema);
+        renderAndWire();
+        return;
+      }
+      if (payload.startsWith('field:')) {
+        const fieldId = payload.replace('field:', '');
+        const fromIndex = registrationSchema.findIndex((item) => item.id === fieldId);
+        if (fromIndex === -1 || fromIndex === targetIndex) return;
+        const [moved] = registrationSchema.splice(fromIndex, 1);
+        const insertIndex = fromIndex < targetIndex ? targetIndex - 1 : targetIndex;
+        registrationSchema.splice(insertIndex, 0, moved);
+        saveRegistrationSchema(registrationSchema);
+        renderAndWire();
+      }
+    });
+  }
+
+  renderAndWire();
+
+  renderAndWire();
+
+  if (submitButton) {
+    submitButton.addEventListener('click', () => {
+      const form = document.getElementById('registrationForm');
+      if (!form) return;
+      const payload = { submitted_at: new Date().toISOString(), values: {} };
+      let hasError = false;
+      registrationSchema.forEach((field) => {
+        const input = form.querySelector(`[data-field-id="${field.id}"]`);
+        const value = input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement || input instanceof HTMLSelectElement ? input.value : '';
+        const message = validateRegistrationValue(field, value, registrationPrefs.language);
+        const errorNode = form.querySelector(`[data-error-for="${field.id}"]`);
+        if (errorNode) errorNode.textContent = message;
+        if (input instanceof HTMLElement) input.classList.toggle('is-invalid', Boolean(message));
+        if (message) hasError = true;
+        payload.values[field.id] = value;
+      });
+      if (hasError) return;
+      registrationSubmissions = [...registrationSubmissions, payload];
+      saveRegistrationSubmissions(registrationSubmissions);
+      setRegistrationStatus(getRegistrationI18n(registrationPrefs.language).statusSaved);
+    });
+  }
+
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      const form = document.getElementById('registrationForm');
+      if (form) form.reset();
+      setRegistrationStatus('');
+    });
+  }
+
+  if (exportPdf) {
+    exportPdf.addEventListener('click', async () => {
+      if (!registrationSubmissions.length) {
+        setRegistrationStatus(getRegistrationI18n(registrationPrefs.language).statusEmpty);
+        return;
+      }
+      const ok = await unwrap(
+        window.api.exportRegistrationPdf({
+          schema: registrationSchema,
+          submissions: registrationSubmissions,
+          language: registrationPrefs.language
+        }),
+        false
+      );
+      if (ok) setRegistrationStatus(getRegistrationI18n(registrationPrefs.language).statusExported);
+    });
+  }
+
+  if (exportExcel) {
+    exportExcel.addEventListener('click', async () => {
+      if (!registrationSubmissions.length) {
+        setRegistrationStatus(getRegistrationI18n(registrationPrefs.language).statusEmpty);
+        return;
+      }
+      const ok = await unwrap(
+        window.api.exportRegistrationExcel({
+          schema: registrationSchema,
+          submissions: registrationSubmissions,
+          language: registrationPrefs.language
+        }),
+        false
+      );
+      if (ok) setRegistrationStatus(getRegistrationI18n(registrationPrefs.language).statusExported);
+    });
+  }
+}
+
 function setupAboutTabs() {
   const tabs = document.querySelectorAll('.about-tab');
   const panels = document.querySelectorAll('.about-panel');
@@ -3579,6 +4290,7 @@ async function initApp() {
   setupReminderCalendar();
   setupTaskForm();
   setupHabitTracking();
+  setupRegistrationBuilder();
   setupAboutTabs();
   await initAccessControl();
   const role = currentRole || getStoredRole();

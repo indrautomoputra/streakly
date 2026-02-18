@@ -22,6 +22,8 @@ contextBridge.exposeInMainWorld('api', {
   getRuntimeInfo: () => ipcRenderer.invoke('get-runtime-info'),
   exportPdf: () => ipcRenderer.invoke('export-pdf'),
   exportData: () => ipcRenderer.invoke('export-data'),
+  exportRegistrationPdf: (payload) => ipcRenderer.invoke('export-registration-pdf', payload),
+  exportRegistrationExcel: (payload) => ipcRenderer.invoke('export-registration-excel', payload),
   getGamification: () => ipcRenderer.invoke('get-gamification'),
   addHabit: (payload) => ipcRenderer.invoke('add-habit', payload),
   logHabit: (payload) => ipcRenderer.invoke('log-habit', payload)

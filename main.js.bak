@@ -277,6 +277,129 @@ function buildReportHtml({
   `;
 }
 
+const REGISTRATION_EXPORT_I18N = {
+  id: {
+    title: 'Data Pendaftaran',
+    submittedAt: 'Tanggal',
+    empty: 'Belum ada data pendaftaran.'
+  },
+  en: {
+    title: 'Registration Data',
+    submittedAt: 'Submitted at',
+    empty: 'No registration data available.'
+  }
+};
+
+function resolveRegistrationLabel(field, language) {
+  const labels = {
+    id: {
+      fullName: 'Nama lengkap',
+      email: 'Email',
+      phone: 'Nomor telepon',
+      nip: 'NIP',
+      cert: 'Nomor Sertifikasi Profesi',
+      portfolio: 'Portofolio',
+      company: 'Instansi/Perusahaan',
+      position: 'Jabatan',
+      address: 'Alamat',
+      notes: 'Catatan'
+    },
+    en: {
+      fullName: 'Full name',
+      email: 'Email',
+      phone: 'Phone number',
+      nip: 'Civil ID',
+      cert: 'Professional Certification',
+      portfolio: 'Portfolio',
+      company: 'Company',
+      position: 'Position',
+      address: 'Address',
+      notes: 'Notes'
+    }
+  };
+  if (field.label) return field.label;
+  if (field.labelKey && labels[language]?.[field.labelKey]) return labels[language][field.labelKey];
+  return field.labelKey || 'Field';
+}
+
+function buildRegistrationPdfHtml({ schema = [], submissions = [], language = 'id' }) {
+  const i18n = REGISTRATION_EXPORT_I18N[language] || REGISTRATION_EXPORT_I18N.id;
+  const headerCells = [
+    `<th>${escapeHtml(i18n.submittedAt)}</th>`,
+    ...schema.map((field) => `<th>${escapeHtml(resolveRegistrationLabel(field, language))}</th>`)
+  ].join('');
+  const rows = submissions
+    .map((entry) => {
+      const created = new Date(entry.submitted_at || new Date());
+      const dateLabel = created.toLocaleString(language === 'en' ? 'en-US' : 'id-ID');
+      const values = schema.map((field) => escapeHtml(entry.values?.[field.id] || '-'));
+      return `<tr><td>${escapeHtml(dateLabel)}</td>${values
+        .map((value) => `<td>${value}</td>`)
+        .join('')}</tr>`;
+    })
+    .join('');
+  const body = rows || `<tr><td colspan="${schema.length + 1}">${escapeHtml(i18n.empty)}</td></tr>`;
+  return `
+  <!DOCTYPE html>
+  <html lang="${language}">
+  <head>
+    <meta charset="utf-8" />
+    <title>${escapeHtml(i18n.title)}</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: "Segoe UI", Arial, sans-serif; margin: 32px; color: #0f172a; }
+      h1 { font-size: 20px; margin: 0 0 16px; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      th, td { border-bottom: 1px solid #e2e8f0; padding: 8px 6px; text-align: left; }
+      th { background: #f8fafc; color: #475569; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>${escapeHtml(i18n.title)}</h1>
+    <table>
+      <thead>
+        <tr>${headerCells}</tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+  </body>
+  </html>
+  `;
+}
+
+function buildRegistrationExcelHtml({ schema = [], submissions = [], language = 'id' }) {
+  const i18n = REGISTRATION_EXPORT_I18N[language] || REGISTRATION_EXPORT_I18N.id;
+  const headerCells = [
+    `<th>${escapeHtml(i18n.submittedAt)}</th>`,
+    ...schema.map((field) => `<th>${escapeHtml(resolveRegistrationLabel(field, language))}</th>`)
+  ].join('');
+  const rows = submissions
+    .map((entry) => {
+      const created = new Date(entry.submitted_at || new Date());
+      const dateLabel = created.toLocaleString(language === 'en' ? 'en-US' : 'id-ID');
+      const values = schema.map((field) => escapeHtml(entry.values?.[field.id] || '-'));
+      return `<tr><td>${escapeHtml(dateLabel)}</td>${values
+        .map((value) => `<td>${value}</td>`)
+        .join('')}</tr>`;
+    })
+    .join('');
+  const body = rows || `<tr><td colspan="${schema.length + 1}">${escapeHtml(i18n.empty)}</td></tr>`;
+  return `
+  <html>
+  <head>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr>${headerCells}</tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+  </body>
+  </html>
+  `;
+}
 
 function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
@@ -580,5 +703,42 @@ ipcHandle('export-data', async () => {
     tasks: await queries.getTasks()
   };
   await fs.promises.writeFile(targetPath, JSON.stringify(payload, null, 2), 'utf8');
+  return true;
+});
+
+ipcHandle('export-registration-pdf', async (event, payload) => {
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: 'Export Registration PDF',
+    defaultPath: 'streakly-registration.pdf',
+    filters: [{ name: 'PDF', extensions: ['pdf'] }]
+  });
+  if (canceled || !filePath) return false;
+  const html = buildRegistrationPdfHtml(payload || {});
+  const reportWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+  await reportWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+  const pdf = await reportWindow.webContents.printToPDF({
+    pageSize: 'A4',
+    printBackground: true
+  });
+  await fs.promises.writeFile(filePath, pdf);
+  reportWindow.close();
+  return true;
+});
+
+ipcHandle('export-registration-excel', async (event, payload) => {
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: 'Export Registration Excel',
+    defaultPath: 'streakly-registration.xls',
+    filters: [{ name: 'Excel', extensions: ['xls'] }]
+  });
+  if (canceled || !filePath) return false;
+  const html = buildRegistrationExcelHtml(payload || {});
+  await fs.promises.writeFile(filePath, html);
   return true;
 });

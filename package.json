@@ -8,7 +8,7 @@
     "dist": "electron-builder --win --x64",
     "release:prepare": "node scripts/prepare-release.js",
     "rebuild": "electron-rebuild -f -w sqlite3",
-    "test": "node tests/task-input.test.js && node tests/task-form-fields.test.js && node tests/calendar-ui.test.js && node tests/calendar-performance.test.js && node tests/ui-layout.test.js && jest --runTestsByPath tests/a11y-dashboard.test.js",
+    "test": "node tests/task-input.test.js && node tests/task-form-fields.test.js && node tests/calendar-ui.test.js && node tests/calendar-performance.test.js && node tests/ui-layout.test.js && node tests/gamification-habit.test.js && node tests/role-gate-flow.test.js && node tests/menu-access.unit.test.js && node tests/menu-access.integration.test.js && jest --runTestsByPath tests/a11y-dashboard.test.js",
     "test:a11y": "jest --runTestsByPath tests/a11y-dashboard.test.js"
   },
   "devDependencies": {

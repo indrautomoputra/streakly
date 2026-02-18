@@ -7,6 +7,12 @@ const css = fs.readFileSync(path.join(__dirname, '../ui/styles.css'), 'utf8');
 
 assert.ok(!html.includes('startupError'), 'Markup startup error tidak boleh tampil saat render.');
 assert.ok(html.includes('class="card'), 'Markup card tidak ditemukan di UI.');
+assert.ok(html.includes('id="gamificationAvatar"'), 'Gamification avatar tidak ditemukan.');
+assert.ok(html.includes('id="badgeList"'), 'Badge list tidak ditemukan.');
+assert.ok(html.includes('id="challengeList"'), 'Challenge list tidak ditemukan.');
+assert.ok(html.includes('id="rewardList"'), 'Reward list tidak ditemukan.');
+assert.ok(html.includes('id="habitList"'), 'Habit list tidak ditemukan.');
+assert.ok(html.includes('id="avatarBuilder"'), 'Avatar builder tidak ditemukan.');
 
 const cardRule = css.match(/\.card\s*\{[\s\S]*?\}/);
 assert.ok(cardRule, 'Style .card tidak ditemukan.');

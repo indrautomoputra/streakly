@@ -259,11 +259,12 @@ async function ensureProfileRow() {
   return await getProfile();
 }
 
-async function updateProfile({ name, avatar, email }) {
-  await run('UPDATE profile SET name = ?, avatar = ?, email = ? WHERE id = 1', [
+async function updateProfile({ name, avatar, email, avatar_config }) {
+  await run('UPDATE profile SET name = ?, avatar = ?, email = ?, avatar_config = ? WHERE id = 1', [
     name,
     avatar || null,
-    email || null
+    email || null,
+    avatar_config || null
   ]);
 }
 
@@ -351,17 +352,25 @@ async function getDailyStatsByDate(date) {
 }
 
 async function upsertDailyStats(date, xpEarned) {
+  return await updateDailyStats(date, { tasksDelta: 1, xpDelta: xpEarned });
+}
+
+async function updateDailyStats(date, { tasksDelta = 0, xpDelta = 0 } = {}) {
   const row = await getDailyStatsByDate(date);
   if (!row) {
+    const safeTasks = Math.max(0, tasksDelta);
+    const safeXp = Math.max(0, xpDelta);
     await run(
-      'INSERT INTO daily_stats (date, tasks_completed, xp_earned) VALUES (?, 1, ?)',
-      [date, xpEarned]
+      'INSERT INTO daily_stats (date, tasks_completed, xp_earned) VALUES (?, ?, ?)',
+      [date, safeTasks, safeXp]
     );
     return;
   }
+  const nextTasks = Math.max(0, (row.tasks_completed || 0) + tasksDelta);
+  const nextXp = Math.max(0, (row.xp_earned || 0) + xpDelta);
   await run(
-    'UPDATE daily_stats SET tasks_completed = tasks_completed + 1, xp_earned = xp_earned + ? WHERE date = ?',
-    [xpEarned, date]
+    'UPDATE daily_stats SET tasks_completed = ?, xp_earned = ? WHERE date = ?',
+    [nextTasks, nextXp, date]
   );
 }
 
@@ -374,6 +383,152 @@ async function getLast30Days() {
     `
   );
   return rows.reverse();
+}
+
+async function getBadges() {
+  return await all('SELECT * FROM badges ORDER BY id ASC');
+}
+
+async function getUserBadges() {
+  return await all(
+    `
+      SELECT ub.id, ub.badge_id, ub.earned_at, b.name, b.description, b.icon, b.color
+      FROM user_badges ub
+      LEFT JOIN badges b ON ub.badge_id = b.id
+      ORDER BY ub.earned_at DESC
+    `
+  );
+}
+
+async function hasUserBadge(badgeId) {
+  if (!badgeId) return false;
+  const row = await get('SELECT id FROM user_badges WHERE badge_id = ?', [badgeId]);
+  return !!row;
+}
+
+async function addUserBadge(badgeId) {
+  if (!badgeId) return null;
+  const exists = await hasUserBadge(badgeId);
+  if (exists) return null;
+  const result = await run('INSERT INTO user_badges (badge_id) VALUES (?)', [badgeId]);
+  return result.lastID || null;
+}
+
+async function getChallenges() {
+  return await all('SELECT * FROM challenges WHERE active = 1 ORDER BY id ASC');
+}
+
+async function getUserChallenges() {
+  return await all(
+    'SELECT * FROM user_challenges ORDER BY started_at DESC'
+  );
+}
+
+async function getUserChallengeById(challengeId) {
+  if (!challengeId) return null;
+  return await get('SELECT * FROM user_challenges WHERE challenge_id = ?', [challengeId]);
+}
+
+async function upsertUserChallenge({ challenge_id, status, progress, completed_at }) {
+  if (!challenge_id) return null;
+  const existing = await getUserChallengeById(challenge_id);
+  if (!existing) {
+    const result = await run(
+      'INSERT INTO user_challenges (challenge_id, status, progress, completed_at) VALUES (?, ?, ?, ?)',
+      [challenge_id, status || 'active', progress || 0, completed_at || null]
+    );
+    return result.lastID || null;
+  }
+  await run(
+    'UPDATE user_challenges SET status = ?, progress = ?, completed_at = ? WHERE challenge_id = ?',
+    [status || existing.status, progress ?? existing.progress, completed_at || existing.completed_at, challenge_id]
+  );
+  return existing.id || null;
+}
+
+async function getRewards({ limit } = {}) {
+  let sql = 'SELECT * FROM rewards ORDER BY issued_at DESC';
+  const params = [];
+  if (Number.isFinite(limit)) {
+    sql += ' LIMIT ?';
+    params.push(limit);
+  }
+  return await all(sql, params);
+}
+
+async function getRewardByTypeRef(type, refValue) {
+  if (!type) return null;
+  return await get(
+    'SELECT * FROM rewards WHERE type = ? AND ref_value = ?',
+    [type, refValue ?? null]
+  );
+}
+
+async function addReward({ type, title, description, xp_bonus, ref_value }) {
+  const result = await run(
+    'INSERT INTO rewards (type, title, description, xp_bonus, ref_value) VALUES (?, ?, ?, ?, ?)',
+    [type || null, title || null, description || null, xp_bonus || 0, ref_value ?? null]
+  );
+  return result.lastID || null;
+}
+
+async function getHabits() {
+  return await all('SELECT * FROM habits ORDER BY created_at DESC');
+}
+
+async function getHabitById(id) {
+  if (!id) return null;
+  return await get('SELECT * FROM habits WHERE id = ?', [id]);
+}
+
+async function addHabit(payload) {
+  if (!payload?.title) return null;
+  const result = await run(
+    'INSERT INTO habits (title, description, kind, frequency, target_count, xp_reward, xp_penalty) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [
+      payload.title,
+      payload.description || null,
+      payload.kind || 'positive',
+      payload.frequency || 'daily',
+      payload.target_count || 1,
+      payload.xp_reward || 10,
+      payload.xp_penalty || 5
+    ]
+  );
+  return result.lastID || null;
+}
+
+async function updateHabitProgress({ id, streak_current, streak_best, last_log_date }) {
+  if (!id) return null;
+  await run(
+    'UPDATE habits SET streak_current = ?, streak_best = ?, last_log_date = ? WHERE id = ?',
+    [streak_current || 0, streak_best || 0, last_log_date || null, id]
+  );
+  return await getHabitById(id);
+}
+
+async function addHabitLog({ habit_id, log_date, value, note }) {
+  if (!habit_id || !log_date) return null;
+  const result = await run(
+    'INSERT INTO habit_logs (habit_id, log_date, value, note) VALUES (?, ?, ?, ?)',
+    [habit_id, log_date, value || 0, note || null]
+  );
+  return result.lastID || null;
+}
+
+async function getHabitLogsByDate(date) {
+  if (!date) return [];
+  return await all('SELECT * FROM habit_logs WHERE log_date = ?', [date]);
+}
+
+async function getCompletedTaskCount() {
+  const row = await get('SELECT COUNT(*) as total FROM tasks WHERE done = 1');
+  return row?.total || 0;
+}
+
+async function getCompletedChallengesCount() {
+  const row = await get('SELECT COUNT(*) as total FROM user_challenges WHERE status = "completed"');
+  return row?.total || 0;
 }
 
 module.exports = {
@@ -403,5 +558,23 @@ module.exports = {
   resetProductivityData,
   getDailyStatsByDate,
   upsertDailyStats,
-  getLast30Days
+  updateDailyStats,
+  getLast30Days,
+  getBadges,
+  getUserBadges,
+  addUserBadge,
+  getChallenges,
+  getUserChallenges,
+  upsertUserChallenge,
+  getRewards,
+  getRewardByTypeRef,
+  addReward,
+  getHabits,
+  getHabitById,
+  addHabit,
+  updateHabitProgress,
+  addHabitLog,
+  getHabitLogsByDate,
+  getCompletedTaskCount,
+  getCompletedChallengesCount
 };

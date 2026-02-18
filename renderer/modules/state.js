@@ -1,0 +1,43 @@
+import { THEME_PRESETS, DEFAULT_AVATAR } from './constants.js';
+
+export const state = {
+  chartInstance: null,
+  editingTaskId: null,
+  pendingAvatarData: null,
+  currentProfile: { name: 'Raka Pratama', avatar: null },
+  currentLevel: 0,
+  currentSettings: {
+    accent: '#7367f0',
+    accent_secondary: '#9f87ff',
+    bg_primary: '#f4f5fb',
+    bg_secondary: '#eef0f7',
+    bg_elevated: '#ffffff',
+    text_primary: '#3a3541',
+    text_muted: '#6f6b7d',
+    border: '#e4e6ef',
+    glow_intensity: 0.14,
+    reminder_enabled: 0,
+    reminder_time: '09:00',
+    xp_per_task: 10,
+    level_step: 100,
+    zoom_level: 100,
+    glass_enabled: 0
+  },
+  reminders: {},
+  isSubmittingTask: false,
+  cachedProjects: [],
+  cachedClients: [],
+  cachedUsers: [],
+  cachedWorkspaces: [],
+  taskOffset: 0,
+  taskHasMore: true,
+  taskSearchQuery: '',
+  calendarViewDate: new Date(),
+  cachedTasks: [],
+  cachedDailyStats: [],
+  cachedStats: {},
+  calendarViewMode: 'month',
+  calendarSelectedDate: '',
+  currentThemeMode: 'light',
+  categories: []
+};

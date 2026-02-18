@@ -44,3 +44,8 @@ npm test
 - Buat branch fitur dengan pola `feature/nama-fitur`
 - Jalankan `npm test` sebelum mengirim PR
 - Sertakan ringkasan perubahan dan dampak pada PR
+
+## Dokumentasi Pengguna
+- User Manual: [user-manual.md](user-manual.md)
+- FAQ: [faq.md](faq.md)
+- Video Tutorial: [video-tutorial.md](video-tutorial.md)

@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' data:; connect-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' data:; connect-src 'self'">
   <title>Streakly</title>
-  <link rel="icon" type="image/svg+xml" sizes="32x32" href="assets/logo-s-note.svg">
-  <link rel="icon" type="image/svg+xml" sizes="64x64" href="assets/logo-s-note.svg">
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="assets/logo streakly-05-04.svg">
+  <link rel="icon" type="image/svg+xml" sizes="64x64" href="assets/logo streakly-05-04.svg">
   <link rel="icon" type="image/svg+xml" sizes="32x32" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0%25'%20stop-color='%234c8dff'/%3E%3Cstop%20offset='100%25'%20stop-color='%23ffb75e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='16'%20fill='url(%23g)'/%3E%3Cpath%20d='M18%2034c7-3%2012-8%2015-15l5-10a4%204%200%200%201%206%202c6%204%209%2012%207%2020l-3%2010-14%203-9-3c-4-2-7-4-10-7z'%20fill='%23ffffff'%20opacity='0.85'/%3E%3C/svg%3E">
   <link rel="icon" type="image/svg+xml" sizes="64x64" href="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0%25'%20stop-color='%234c8dff'/%3E%3Cstop%20offset='100%25'%20stop-color='%23ffb75e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='16'%20fill='url(%23g)'/%3E%3Cpath%20d='M18%2034c7-3%2012-8%2015-15l5-10a4%204%200%200%201%206%202c6%204%209%2012%207%2020l-3%2010-14%203-9-3c-4-2-7-4-10-7z'%20fill='%23ffffff'%20opacity='0.85'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">Lewati ke konten utama</a>
   <div class="app-frame">
   <div class="app-shell">
     <aside class="sidebar">
@@ -110,12 +111,12 @@
       </div>
     </aside>
 
-    <main class="main">
+    <main id="mainContent" class="main" role="main">
       <header class="topbar app-header">
         <div class="topbar-left">
             <div class="app-brand">
               <div class="app-meta">
-                <img class="app-wordmark" src="assets/logo streakly-04-05.svg" alt="Streakly">
+                <img class="app-wordmark" src="assets/logo streakly-05-04.svg" alt="Streakly">
               </div>
             </div>
           <div class="topbar-right">
@@ -164,6 +165,7 @@
           <div id="todayDate" class="topbar-date">Kamis, 12 Feb 2026</div>
         </div>
       </header>
+      <div id="accessNotice" class="access-notice is-hidden" role="status" aria-live="polite"></div>
 
       <section class="section active" data-section="dashboard">
         <div class="content-grid">
@@ -264,6 +266,37 @@
                 <div id="insightText" class="mini-insight-text">Pertahankan ritme dengan satu task utama.</div>
               </div>
             </div>
+
+            <div class="card gamification-card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Gamifikasi</div>
+                  <div id="gamificationSubtitle" class="card-subtitle">Bangun konsistensi dengan reward bertahap.</div>
+                </div>
+              </div>
+              <div class="gamification-hero">
+                <img id="gamificationAvatar" class="gamification-avatar" alt="Avatar RPG">
+                <div>
+                  <div id="gamificationTitle" class="gamification-title">Level 0 • Streak 0 hari</div>
+                  <div class="xp-bar compact">
+                    <span id="gamificationXpProgress"></span>
+                  </div>
+                  <div id="gamificationXpText" class="gamification-xp">XP 0/100</div>
+                </div>
+              </div>
+              <div class="gamification-section">
+                <div class="gamification-section-title">Badge</div>
+                <div id="badgeList" class="badge-list"></div>
+              </div>
+              <div class="gamification-section">
+                <div class="gamification-section-title">Challenge aktif</div>
+                <div id="challengeList" class="challenge-list"></div>
+              </div>
+              <div class="gamification-section">
+                <div class="gamification-section-title">Reward terbaru</div>
+                <div id="rewardList" class="reward-list"></div>
+              </div>
+            </div>
               </div>
             </div>
           </div>
@@ -321,8 +354,8 @@
             </div>
             <div class="task-layout">
               <div class="task-form-area">
-                <div id="taskError" class="task-error input-error is-hidden"></div>
-                <div id="taskSuccess" class="task-success is-hidden"></div>
+                <div id="taskError" class="task-error input-error is-hidden" role="alert" aria-live="assertive"></div>
+                <div id="taskSuccess" class="task-success is-hidden" role="status" aria-live="polite"></div>
                 <div class="task-form-section">
                   <div class="task-section-title">Informasi Utama</div>
                   <div class="task-form-grid">
@@ -502,6 +535,53 @@
               </div>
             </div>
           </div>
+          <div class="card habit-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Habit Quest</div>
+                <div class="card-subtitle">Bangun streak dengan konsekuensi positif dan negatif.</div>
+              </div>
+              <button id="habitAdd" class="btn-primary btn-compact">Tambah Habit</button>
+            </div>
+            <div id="habitNotice" class="habit-notice is-hidden" role="status" aria-live="polite"></div>
+            <div class="habit-form">
+              <div class="habit-form-row">
+                <label class="settings-label" for="habitNameInput">Nama habit</label>
+                <input id="habitNameInput" class="input" type="text" placeholder="Contoh: Ritual pagi">
+              </div>
+              <div class="habit-form-row">
+                <label class="settings-label" for="habitDescriptionInput">Deskripsi</label>
+                <input id="habitDescriptionInput" class="input" type="text" placeholder="Buat instruksi singkat">
+              </div>
+              <div class="habit-form-row">
+                <label class="settings-label" for="habitTypeSelect">Tipe</label>
+                <select id="habitTypeSelect" class="input">
+                  <option value="positive">Positif</option>
+                  <option value="negative">Negatif</option>
+                </select>
+              </div>
+              <div class="habit-form-row">
+                <label class="settings-label" for="habitFrequencySelect">Frekuensi</label>
+                <select id="habitFrequencySelect" class="input">
+                  <option value="daily">Harian</option>
+                  <option value="weekly">Mingguan</option>
+                </select>
+              </div>
+              <div class="habit-form-row">
+                <label class="settings-label" for="habitTargetInput">Target</label>
+                <input id="habitTargetInput" class="input" type="number" min="1" max="7" value="1">
+              </div>
+              <div class="habit-form-row">
+                <label class="settings-label" for="habitRewardInput">Reward XP</label>
+                <input id="habitRewardInput" class="input" type="number" min="1" max="200" value="10">
+              </div>
+              <div class="habit-form-row">
+                <label class="settings-label" for="habitPenaltyInput">Penalty XP</label>
+                <input id="habitPenaltyInput" class="input" type="number" min="0" max="200" value="5">
+              </div>
+            </div>
+            <div id="habitList" class="habit-list"></div>
+          </div>
           <div class="card tracking-schedule">
             <div class="card-header">
               <div>
@@ -592,6 +672,30 @@
                 <button id="backupData" class="btn-ghost">Backup Data</button>
                 <button id="restoreData" class="btn-ghost">Restore Data</button>
                 <button id="exportPdf" class="btn-ghost">Export PDF</button>
+                <button id="exportData" class="btn-ghost">Export Data (JSON)</button>
+              </div>
+              <div class="settings-divider"></div>
+              <div class="settings-section">
+                <div class="settings-title">Privasi & Feedback</div>
+                <div class="settings-subtitle">Kelola data dan kirim masukan agar produk makin baik.</div>
+                <div class="settings-form">
+                  <div class="settings-field">
+                    <label class="settings-label" for="analyticsOptIn">Analitik lokal</label>
+                    <label class="toggle">
+                      <input id="analyticsOptIn" type="checkbox">
+                      <span class="toggle-track"></span>
+                      <span class="toggle-label">Izinkan pencatatan penggunaan di perangkat ini</span>
+                    </label>
+                  </div>
+                  <div class="settings-field full">
+                    <label class="settings-label" for="feedbackInput">Masukan pengguna</label>
+                    <textarea id="feedbackInput" class="input" rows="4" placeholder="Tuliskan pengalaman atau saran singkat"></textarea>
+                    <div id="feedbackStatus" class="field-hint"></div>
+                  </div>
+                </div>
+                <div class="settings-actions">
+                  <button id="feedbackSend" class="btn-ghost">Kirim Masukan</button>
+                </div>
               </div>
               <div class="settings-muted">copyright &copy; 2026 Indrautomoputra</div>
             </div>
@@ -612,7 +716,52 @@
                   </div>
                   <div class="settings-field">
                     <label class="settings-label" for="profilePhotoInput">Foto profil</label>
-                    <input id="profilePhotoInput" type="file" class="input" accept="image/*">
+                    <div class="avatar-mode-toggle">
+                      <button id="avatarModeRpg" class="btn-ghost is-active" type="button">Avatar RPG</button>
+                      <button id="avatarModeUpload" class="btn-ghost" type="button">Foto</button>
+                    </div>
+                    <div id="profilePhotoField" class="avatar-upload is-hidden">
+                      <input id="profilePhotoInput" type="file" class="input" accept="image/*">
+                    </div>
+                  </div>
+                  <div id="avatarBuilder" class="avatar-builder">
+                    <div class="avatar-builder-row">
+                      <label class="settings-label" for="avatarBaseSelect">Ras</label>
+                      <select id="avatarBaseSelect" class="input">
+                        <option value="human">Human</option>
+                        <option value="elf">Elf</option>
+                        <option value="android">Android</option>
+                      </select>
+                    </div>
+                    <div class="avatar-builder-row">
+                      <label class="settings-label" for="avatarArmorSelect">Armor</label>
+                      <select id="avatarArmorSelect" class="input">
+                        <option value="vanguard">Vanguard</option>
+                        <option value="mystic">Mystic</option>
+                        <option value="ranger">Ranger</option>
+                      </select>
+                    </div>
+                    <div class="avatar-builder-row">
+                      <label class="settings-label" for="avatarAccessorySelect">Aksesori</label>
+                      <select id="avatarAccessorySelect" class="input">
+                        <option value="aura">Aura</option>
+                        <option value="blade">Blade</option>
+                        <option value="crest">Crest</option>
+                      </select>
+                    </div>
+                    <div class="avatar-builder-row">
+                      <label class="settings-label" for="avatarMoodSelect">Mood</label>
+                      <select id="avatarMoodSelect" class="input">
+                        <option value="focus">Focus</option>
+                        <option value="brave">Brave</option>
+                        <option value="calm">Calm</option>
+                      </select>
+                    </div>
+                    <div class="avatar-builder-row">
+                      <label class="settings-label" for="avatarPaletteInput">Palet warna</label>
+                      <input id="avatarPaletteInput" type="color" class="input" value="#6f67ff">
+                    </div>
+                    <button id="avatarRandomize" class="btn-ghost" type="button">Acak karakter</button>
                   </div>
                 </div>
                 <div class="profile-preview-card">
@@ -859,16 +1008,17 @@
     <div class="role-gate-card">
       <div class="role-gate-title">Pilih Role</div>
       <div class="role-gate-subtitle">Akses fitur sesuai peran pekerjaan.</div>
+      <div id="roleGateStatus" class="role-gate-status is-hidden">Membuka dashboard...</div>
       <div class="role-gate-actions">
-        <button id="roleSelectDeveloper" class="btn-primary">Developer</button>
-        <button id="roleSelectEmployee" class="btn-ghost">Karyawan</button>
+        <button id="roleSelectDeveloper" class="btn-primary" type="button">Developer</button>
+        <button id="roleSelectEmployee" class="btn-ghost" type="button">Karyawan</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../renderer/calendar-utils.js"></script>
-  <script src="../renderer/renderer.js"></script>
+  <script type="module" src="../renderer/renderer.js"></script>
 
 </body>
 </html>

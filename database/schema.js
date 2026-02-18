@@ -122,6 +122,22 @@ async function ensureGamificationSeed() {
       ['Naya', 640]
     );
   }
+
+  const habitCount = await get('SELECT COUNT(*) as count FROM habits');
+  if (!habitCount?.count) {
+    await run(
+      'INSERT INTO habits (title, description, kind, frequency, target_count, xp_reward, xp_penalty) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      ['Ritual Pagi', 'Bangun dan catat fokus utama hari ini', 'positive', 'daily', 1, 12, 4]
+    );
+    await run(
+      'INSERT INTO habits (title, description, kind, frequency, target_count, xp_reward, xp_penalty) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      ['Latihan Fokus', 'Selesaikan satu sesi deep work', 'positive', 'daily', 1, 18, 6]
+    );
+    await run(
+      'INSERT INTO habits (title, description, kind, frequency, target_count, xp_reward, xp_penalty) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      ['Distraksi Sosial', 'Kurangi scroll tanpa tujuan', 'negative', 'daily', 1, 10, 8]
+    );
+  }
 }
 
 async function initSchema() {
@@ -305,6 +321,46 @@ async function initSchema() {
     `);
 
     await run(`
+      CREATE TABLE IF NOT EXISTS habits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        description TEXT,
+        kind TEXT,
+        frequency TEXT,
+        target_count INTEGER DEFAULT 1,
+        xp_reward INTEGER DEFAULT 10,
+        xp_penalty INTEGER DEFAULT 5,
+        streak_current INTEGER DEFAULT 0,
+        streak_best INTEGER DEFAULT 0,
+        last_log_date TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS habit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        habit_id INTEGER,
+        log_date TEXT,
+        value INTEGER,
+        note TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS rewards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT,
+        title TEXT,
+        description TEXT,
+        xp_bonus INTEGER DEFAULT 0,
+        ref_value INTEGER,
+        issued_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await run(`
       CREATE TABLE IF NOT EXISTS leaderboard (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
@@ -319,6 +375,9 @@ async function initSchema() {
     await run('CREATE INDEX IF NOT EXISTS idx_user_badges_badge_id ON user_badges(badge_id)');
     await run('CREATE INDEX IF NOT EXISTS idx_user_challenges_challenge_id ON user_challenges(challenge_id)');
     await run('CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read)');
+    await run('CREATE INDEX IF NOT EXISTS idx_habit_logs_habit_id ON habit_logs(habit_id)');
+    await run('CREATE INDEX IF NOT EXISTS idx_habit_logs_date ON habit_logs(log_date)');
+    await run('CREATE INDEX IF NOT EXISTS idx_rewards_type_ref ON rewards(type, ref_value)');
 
     await ensureColumns('tasks', [
       { name: 'side', type: 'TEXT' },
@@ -394,7 +453,8 @@ async function initSchema() {
     }
 
     await ensureColumns('profile', [
-      { name: 'email', type: 'TEXT' }
+      { name: 'email', type: 'TEXT' },
+      { name: 'avatar_config', type: 'TEXT' }
     ]);
 
     await ensureColumns('settings', [
@@ -413,6 +473,19 @@ async function initSchema() {
       { name: 'level_step', type: 'INTEGER DEFAULT 100' },
       { name: 'zoom_level', type: 'INTEGER DEFAULT 100' },
       { name: 'glass_enabled', type: 'INTEGER DEFAULT 0' }
+    ]);
+
+    await ensureColumns('habits', [
+      { name: 'title', type: 'TEXT' },
+      { name: 'description', type: 'TEXT' },
+      { name: 'kind', type: 'TEXT' },
+      { name: 'frequency', type: 'TEXT' },
+      { name: 'target_count', type: 'INTEGER DEFAULT 1' },
+      { name: 'xp_reward', type: 'INTEGER DEFAULT 10' },
+      { name: 'xp_penalty', type: 'INTEGER DEFAULT 5' },
+      { name: 'streak_current', type: 'INTEGER DEFAULT 0' },
+      { name: 'streak_best', type: 'INTEGER DEFAULT 0' },
+      { name: 'last_log_date', type: 'TEXT' }
     ]);
 
     await ensureColumns('stats', [

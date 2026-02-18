@@ -14,6 +14,24 @@ function cleanAvatar(value) {
   return value;
 }
 
+function cleanAvatarConfig(value) {
+  if (!value) return null;
+  if (typeof value !== 'string') return null;
+  try {
+    const parsed = JSON.parse(value);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return JSON.stringify({
+      base: String(parsed.base || 'human'),
+      armor: String(parsed.armor || 'vanguard'),
+      accessory: String(parsed.accessory || 'aura'),
+      mood: String(parsed.mood || 'focus'),
+      palette: String(parsed.palette || '#6f67ff')
+    });
+  } catch (err) {
+    return null;
+  }
+}
+
 function cleanEmail(value) {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim().toLowerCase();
@@ -27,18 +45,25 @@ async function getProfile() {
   return {
     name: row?.name || 'Raka Pratama',
     avatar: row?.avatar || null,
-    email: row?.email || null
+    email: row?.email || null,
+    avatar_config: row?.avatar_config || null
   };
 }
 
-async function updateProfile(name, avatar, email) {
+async function updateProfile(name, avatar, email, avatarConfig) {
   const clean = cleanName(name);
   if (!clean) return false;
   const safeAvatar = cleanAvatar(avatar);
   const safeEmail = cleanEmail(email);
+  const safeAvatarConfig = cleanAvatarConfig(avatarConfig);
   if (email && !safeEmail) return false;
   await queries.ensureProfileRow();
-  await queries.updateProfile({ name: clean, avatar: safeAvatar, email: safeEmail });
+  await queries.updateProfile({
+    name: clean,
+    avatar: safeAvatar,
+    email: safeEmail,
+    avatar_config: safeAvatarConfig
+  });
   return true;
 }
 

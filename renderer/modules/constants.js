@@ -1,0 +1,69 @@
+export const REMINDER_STORAGE_KEY = 'streakly_reminders';
+export const TASK_DRAFT_KEY = 'streakly_task_draft_v2';
+export const TASK_PAGE_SIZE = 50;
+export const CATEGORY_STORAGE_KEY = 'streakly_categories';
+export const CATEGORY_TUTORIAL_KEY = 'streakly_category_tutorial';
+export const THEME_MODE_KEY = 'streakly_theme_mode';
+export const ANALYTICS_OPT_IN_KEY = 'streakly_analytics_opt_in';
+export const EVENT_LOG_KEY = 'streakly_event_log';
+export const FEEDBACK_STORAGE_KEY = 'streakly_feedback';
+export const ROLE_STORAGE_KEY = 'streakly_role';
+export const ACCESS_LOG_KEY = 'streakly_access_log';
+
+export const THEME_PRESETS = {
+  light: {
+    accent: '#7367f0',
+    accent_secondary: '#9f87ff',
+    bg_primary: '#f4f5fb',
+    bg_secondary: '#eef0f7',
+    bg_elevated: '#ffffff',
+    text_primary: '#3a3541',
+    text_muted: '#6f6b7d',
+    border: '#e4e6ef',
+    glow_intensity: 0.14
+  },
+  dark: {
+    accent: '#5cb8ff',
+    accent_secondary: '#5fe0d3',
+    bg_primary: '#0f1623',
+    bg_secondary: '#142033',
+    bg_elevated: '#1a2941',
+    text_primary: '#e6f2ff',
+    text_muted: '#a7bdd6',
+    border: '#1f2f46',
+    glow_intensity: 0.18
+  }
+};
+
+export const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%237367f0'/><stop offset='100%' stop-color='%239f87ff'/></linearGradient></defs><rect width='80' height='80' rx='40' fill='url(%23g)'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Segoe UI, Arial' font-size='30' fill='white'>R</text></svg>";
+
+export const DEFAULT_CATEGORIES = [
+  { name: 'Urgent', color: '#6f67ff', icon: '⚡', label: 'Urgent - Ungu' },
+  { name: 'Normal', color: '#46b3c5', icon: '✅', label: 'Normal - Hijau Tosca' },
+  { name: 'Meeting', color: '#ff9a62', icon: '📌', label: 'Meeting - Oranye' },
+  { name: 'Deadline', color: '#ef4444', icon: '⏰', label: 'Deadline - Merah' },
+  { name: 'Personal', color: '#7c9cff', icon: '🏠', label: 'Personal - Biru' }
+];
+
+export const MOTIVATION_POOLS = {
+  1: [
+    { title: 'Mulai pelan, hasilnya besar', subtitle: 'Satu langkah kecil hari ini sudah cukup' },
+    { title: 'Fokus ringan dulu', subtitle: 'Cukup satu task untuk membuka ritme' }
+  ],
+  2: [
+    { title: 'Ritme mulai terbentuk', subtitle: 'Jaga konsistensi kecil setiap hari' },
+    { title: 'Semangat makin stabil', subtitle: 'Sedikit demi sedikit, hasilnya terasa' }
+  ],
+  3: [
+    { title: 'Progresmu solid', subtitle: 'Momentum sedang bagus, lanjutkan' },
+    { title: 'Pertumbuhan nyata', subtitle: 'Ritme produktifmu makin terlihat' }
+  ],
+  4: [
+    { title: 'Level naik cepat', subtitle: 'Fokusmu kuat, pertahankan pola ini' },
+    { title: 'Kamu on track', subtitle: 'Produktivitasmu konsisten dan terarah' }
+  ],
+  5: [
+    { title: 'Mastery mode aktif', subtitle: 'Kamu memimpin ritme hari ini' },
+    { title: 'Puncak fokus', subtitle: 'Gunakan energi terbaikmu sekarang' }
+  ]
+};
